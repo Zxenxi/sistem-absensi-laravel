@@ -15,6 +15,7 @@
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <style>
             /* Jika perlu, tambahkan style tambahan di sini */
+            /* halo */
         </style>
     </head>
 
