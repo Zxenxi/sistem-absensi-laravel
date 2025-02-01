@@ -15,5 +15,10 @@ class Guru extends Model
         'nama',
         'foto'
     ];
+    public function user()
+{
+    return $this->belongsTo(User::class);
+}
+
 
 }

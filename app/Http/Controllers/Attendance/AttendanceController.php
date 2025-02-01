@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Attendance;
+use Carbon\Carbon;
 use App\Models\Guru;
 use App\Models\Siswa;
 use App\Models\Attendance;
@@ -74,5 +75,58 @@ class AttendanceController extends Controller
     
         return response()->json(['message' => 'Absensi berhasil disimpan.']);
     }
-    
+
+    // Halaman absensi untuk guru (tanpa pilihan kelas)
+    // public function teacherIndex()
+    // {
+    //     $guru = Guru::where('user_id', auth()->id())->first();
+    //     if (!$guru) {
+    //         abort(403, 'Unauthorized action.');
+    //     }
+    //     return view('attendance.index');
+    //     // return view('attendance.teacher-attendance');
+    // }
+
+    // // Proses absensi guru
+    // public function teacherMark(Request $request)
+    // {
+    //     $data = $request->validate([
+    //         'latitude'  => 'required|numeric',
+    //         'longitude' => 'required|numeric',
+    //         'selfie'    => 'required|string',  // Data foto dalam bentuk Base64
+    //         'status'    => 'required|in:Hadir,Sakit,Izin,Alfa',
+    //     ]);
+
+    //     $guru = Guru::where('user_id', auth()->id())->first();
+    //     if (!$guru) {
+    //         return response()->json(['message' => 'Unauthorized'], 403);
+    //     }
+
+    //     Attendance::create([
+    //         'guru_id'    => $guru->id,
+    //         'siswa_id'   => null,  // Guru absen sendiri
+    //         'waktu'      => Carbon::now(),
+    //         'lokasi'     => $data['latitude'] . ',' . $data['longitude'],
+    //         'status'     => $data['status'],
+    //         'foto_wajah' => $data['selfie'],
+    //     ]);
+
+    //     return response()->json(['message' => 'Attendance saved successfully']);
+    // }
+
+    // // Rekaman absensi siswa (untuk siswa melihat sendiri)
+    // public function myAttendance(Request $request)
+    // {
+    //     // Misalnya, jika siswa melakukan absensi mandiri atau melihat rekaman absensi
+    //     // Ambil data siswa berdasarkan user_id (pastikan kolom user_id ada di tabel siswa)
+    //     $siswa = \App\Models\Siswa::where('user_id', auth()->id())->first();
+    //     if (!$siswa) {
+    //         abort(403, 'Unauthorized action.');
+    //     }
+
+    //     $records = Attendance::where('siswa_id', $siswa->id)->get();
+    //     return view('attendance.my-attendance', compact('records'));
+    // }
+
+
 }

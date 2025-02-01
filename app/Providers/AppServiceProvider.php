@@ -9,12 +9,12 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    protected const HOME = '/index'; // Atur URL dashboard Anda
+    // / Atur URL dashboard Anda
+    protected const HOME = '/dashboard'; // Atur URL dashboard Anda
 
     public function register(): void
     {
         //
-        
     }
 
     /**

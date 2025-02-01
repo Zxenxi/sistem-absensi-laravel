@@ -12,6 +12,21 @@ use App\Http\Controllers\Attendance\AttendanceController;
 //     return view('welcome');
 // });
 
+// use App\Http\Controllers\AttendanceController;
+// use App\Http\Controllers\AdminController;
+
+// Route::middleware(['auth'])->group(function () {
+//     // Dashboard Admin
+//     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    
+//     // Absensi Guru (hanya absen diri)
+//     Route::get('/attendance', [AttendanceController::class, 'teacherIndex'])->name('attendance.index');
+//     Route::post('/attendance/mark', [AttendanceController::class, 'teacherMark'])->name('attendance.mark');
+
+//     // Rekaman Absensi Siswa (atau absensi siswa mandiri jika diizinkan)
+//     Route::get('/my-attendance', [AttendanceController::class, 'myAttendance'])->name('attendance.myAttendance');
+// });
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

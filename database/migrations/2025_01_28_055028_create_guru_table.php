@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('guru', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->string('nama');
-            $table->string('foto')->nullable(); // Untuk menyimpan URL foto profil guru
+            $table->string('foto')->nullable();
             $table->timestamps();
         });
+        
     }
 
     /**

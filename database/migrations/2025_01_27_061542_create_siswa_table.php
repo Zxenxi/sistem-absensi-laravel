@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('nisn');
             $table->string('nama');
-            // $table->string('foto'); // Untuk menyimpan URL foto profil siswa
-            $table->foreignId('kelas_id')->constrained()->onDelete('cascade');
+            $table->foreignId('kelas_id')->constrained('kelas')->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
+        
     
     }
 
