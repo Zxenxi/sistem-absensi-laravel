@@ -45,4 +45,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function guru()
+    {
+        return $this->hasOne(\App\Models\Guru::class);
+    }
+    public function siswa()
+    {
+        return $this->hasOne(\App\Models\Siswa::class);
+    }
+    
+
 }

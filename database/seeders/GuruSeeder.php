@@ -2,10 +2,8 @@
 
 namespace Database\Seeders;
 
-use Nette\Schema\Schema;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class GuruSeeder extends Seeder
 {
@@ -15,11 +13,11 @@ class GuruSeeder extends Seeder
     public function run(): void
     {
         $gurus = [
-            ['nama' => 'John Doe'],
-            ['nama' => 'Jane Smith'],
-            ['nama' => 'Alice Johnson'],
-            ['nama' => 'Bob Brown'],
-            ['nama' => 'Charlie Davis'],
+            ['nama' => 'John Doe', 'user_id' => null],
+            ['nama' => 'Jane Smith', 'user_id' => null],
+            ['nama' => 'Alice Johnson', 'user_id' => null],
+            ['nama' => 'Bob Brown', 'user_id' => null],
+            ['nama' => 'Charlie Davis', 'user_id' => null],
         ];
 
         DB::table('guru')->insert($gurus);

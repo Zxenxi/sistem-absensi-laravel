@@ -13,12 +13,12 @@ class Guru extends Model
 
     protected $fillable = [
         'nama',
-        'foto'
+        'foto',
+        'user_id', // Tambahkan ini agar user_id dapat diisi
     ];
+
     public function user()
-{
-    return $this->belongsTo(User::class);
-}
-
-
+    {
+        return $this->belongsTo(\App\Models\User::class);
+    }
 }

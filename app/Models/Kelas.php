@@ -43,8 +43,8 @@ class Kelas extends Model
         return $this->hasMany(Siswa::class);
     }
     public function user()
-{
-    return $this->belongsTo(User::class);
-}
+    {
+        return $this->belongsTo(User::class);
+    }
 
 }

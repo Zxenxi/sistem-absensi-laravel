@@ -10,41 +10,27 @@ class Siswa extends Model
 {
     use HasFactory;
 
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
     protected $table = 'siswa';
-
-    /**
-     * The primary key associated with the table.
-     *
-     * @var string
-     */
     protected $primaryKey = 'id';
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'nisn',
         'nama',
-        // 'foto', // Menyimpan URL foto profil siswa
         'kelas_id',
+        'user_id', // Tambahkan ini agar user_id dapat diisi secara mass assignment
     ];
 
-    // Relasi ke model Kelas
     public function kelas()
     {
         return $this->belongsTo(Kelas::class);
     }
 
-    // Relasi ke model Attendance
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
     }
+    public function user()
+{
+    return $this->belongsTo(\App\Models\User::class);
+}
 }
