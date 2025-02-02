@@ -32,21 +32,21 @@ class LoginRequest extends FormRequest
             'password' => ['required', 'string'],
         ];
     }
-    // protected function authenticated(Request $request, $user)
-    // {
-    //     if ($user->role === 'admin') {
-    //         return redirect('/admin/dashboard');
-    //     } elseif ($user->role === 'guru') {
-    //         return redirect('/absensi');
-    //     } elseif ($user->role === 'siswa') {
-    //         return redirect('/absensi');
-    //     } else {
-    //         return redirect('/dashboard');
-    //     }
+    protected function authenticated(Request $request, $user)
+    {
+        if ($user->role === 'admin') {
+            return redirect('/admin/dashboard');
+        } elseif ($user->role === 'guru') {
+            return redirect('/absensi');
+        } elseif ($user->role === 'siswa') {
+            return redirect('/absensi');
+        } else {
+            return redirect('/dashboard');
+        }
         
     
-    //     return redirect('/home');
-    // }
+        return redirect('/home');
+    }
     
     /**
      * Attempt to authenticate the request's credentials.

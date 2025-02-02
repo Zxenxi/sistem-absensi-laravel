@@ -80,15 +80,16 @@ Route::middleware('auth')->group(function () {
     Route::delete('/guru/{id}', [GuruController::class, 'destroy']);
 });
 
-// Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function () {
 Route::get('/attendances', [AttendanceController::class, 'index'])->name('attendances.index');
 Route::post('/attendances', [AttendanceController::class, 'store'])->name('attendances.store');
 Route::get('/absensi', function () {
     return view('absensi');
 })->name('absensi.form');
 
-Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.store');
 
+Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.store');
+});
 
 
 
