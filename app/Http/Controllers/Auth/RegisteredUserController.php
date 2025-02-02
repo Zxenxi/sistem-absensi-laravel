@@ -22,9 +22,7 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        // Jika diperlukan, Anda bisa mengirim data kelas ke view.
-        // $kelas = Kelas::all();
-        // return view('auth.register', compact('kelas'));
+ 
         return view('auth.register');
     }
 
@@ -40,7 +38,7 @@ class RegisteredUserController extends Controller
             'name'      => 'required|string|max:255',
             'email'     => 'required|string|email|max:255|unique:users',
             'password'  => ['required', 'string', 'min:8', 'confirmed'],
-            'role'      => 'required|in:admin,guru,siswa',
+            'role'      => 'required|in:guru,siswa',
             'nisn'      => 'required_if:role,siswa|nullable|string|max:20',
             // Jika role siswa ingin memilih kelas secara manual, aktifkan validasi berikut:
             // 'kelas_id' => 'required_if:role,siswa|exists:kelas,id',
@@ -99,7 +97,7 @@ class RegisteredUserController extends Controller
         if ($user->role === 'admin') {
             return redirect('/dashboard');
         } elseif (in_array($user->role, ['guru', 'siswa'])) {
-            return redirect()->route('absensi.form'); // Pastikan route 'absensi.form' didefinisikan
+            return redirect()->route('absensi.store'); // Pastikan route 'absensi.form' didefinisikan
         } else {
             return redirect('/absensi');
         }

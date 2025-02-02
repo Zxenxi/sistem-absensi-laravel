@@ -82,7 +82,6 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware('auth')->group(function () {
 Route::get('/absensi', [AttendanceController::class, 'index'])->name('attendances.index');
-// Route::post('/attendances', [AttendanceController::class, 'store'])->name('attendances.store');
 Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.store');
 });
 

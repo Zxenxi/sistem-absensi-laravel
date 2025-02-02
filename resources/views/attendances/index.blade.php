@@ -8,18 +8,19 @@
             <div class="w-full max-w-md bg-white/30 backdrop-blur-lg rounded-lg shadow-xl p-8">
                 <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">Form Absensi</h1>
 
-                <!-- Form Absensi: Hanya pengambilan foto dan lokasi -->
                 <form id="absensiForm" class="space-y-6">
-                    <!-- Informasi identitas diambil dari session -->
+                    <!-- Identitas Pengguna -->
                     <input type="hidden" name="role" value="{{ Auth::user()->role }}">
                     @if (Auth::user()->role === 'guru')
                         <input type="hidden" name="id" value="{{ Auth::user()->email }}">
                     @elseif(Auth::user()->role === 'siswa')
-                        <!-- Jika user siswa, diasumsikan Anda memiliki relasi user ke model Siswa yang menyimpan nisn -->
                         <input type="hidden" name="id" value="{{ Auth::user()->siswa->nisn ?? '' }}">
                     @endif
 
-                    <!-- Kamera dengan efek border kaca -->
+                    <!-- Input lokasi tersembunyi untuk menyimpan data koordinat -->
+                    <input type="hidden" id="lokasi" name="lokasi">
+
+                    <!-- Bagian Kamera & Foto -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Ambil Foto</label>
                         <div class="relative border rounded-md overflow-hidden bg-white/20 backdrop-blur-sm">
@@ -33,32 +34,37 @@
                         </div>
                     </div>
 
-                    <!-- Lokasi -->
+                    <!-- Bagian Status Lokasi dengan Spinner -->
                     <div>
-                        <label for="lokasi" class="block text-sm font-medium text-gray-700">Lokasi</label>
-                        <input type="text" id="lokasi" name="lokasi"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Lokasi Anda" readonly required>
+                        <label class="block text-sm font-medium text-gray-700">Status Lokasi</label>
+                        <div id="locationContainer" class="flex items-center mt-1 space-x-2">
+                            <svg id="locationSpinner" class="animate-spin h-5 w-5 text-blue-500"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                            </svg>
+                            <span id="locationStatus" class="text-xs text-gray-500">Mendapatkan lokasi...</span>
+                        </div>
                     </div>
 
                     <!-- Tombol Absensi -->
                     <div class="flex justify-center">
-                        <button type="submit"
-                            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow transition-colors duration-200">
-                            Absen
-                        </button>
+                        <button type="submit" id="submitBtn"
+                            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded shadow transition-colors duration-200"
+                            disabled>Absen</button>
                     </div>
                 </form>
             </div>
         </div>
 
+        <!-- Script JavaScript -->
         <script>
-            // MediaDevices API: Akses kamera perangkat
+            // Pengaturan kamera menggunakan MediaDevices API
             const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
             const takePhotoButton = document.getElementById('takePhoto');
             const photoPreview = document.getElementById('photoPreview');
-
             let photoData = null;
 
             navigator.mediaDevices.getUserMedia({
@@ -77,51 +83,92 @@
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                photoData = canvas.toDataURL('image/png'); // Konversi foto ke Base64
+                photoData = canvas.toDataURL('image/png');
                 photoPreview.src = photoData;
                 photoPreview.classList.remove('hidden');
-                video.classList.add('hidden'); // Sembunyikan video
-                takePhotoButton.classList.add('hidden'); // Sembunyikan tombol ambil foto
+                video.classList.add('hidden');
+                takePhotoButton.classList.add('hidden');
             });
 
-            // Ambil lokasi GPS
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        document.getElementById('lokasi').value =
-                            `${position.coords.latitude}, ${position.coords.longitude}`;
-                    },
-                    function() {
-                        Swal.fire('Gagal!', 'Lokasi GPS tidak bisa diakses.', 'error');
-                    }
-                );
-            } else {
-                Swal.fire('Gagal!', 'Browser Anda tidak mendukung GPS.', 'error');
+            // Pengaturan Geolocation untuk mendapatkan lokasi pengguna
+            const lokasiInput = document.getElementById('lokasi'); // input tersembunyi
+            const locationStatus = document.getElementById('locationStatus');
+            const locationSpinner = document.getElementById('locationSpinner');
+            const submitBtn = document.getElementById('submitBtn');
+
+            function getLocation() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const lat = position.coords.latitude;
+                            const lng = position.coords.longitude;
+                            // Simpan koordinat pada input tersembunyi
+                            lokasiInput.value = `${lat}, ${lng}`;
+                            // Update status dan sembunyikan spinner
+                            locationStatus.textContent = 'Lokasi berhasil didapatkan.';
+                            locationSpinner.style.display = 'none';
+                            submitBtn.disabled = false;
+                        },
+                        function(error) {
+                            // Handling error dengan lebih detail berdasarkan kode error
+                            let errorMsg = 'Gagal mendapatkan lokasi. Pastikan GPS aktif.';
+                            switch (error.code) {
+                                case error.PERMISSION_DENIED:
+                                    errorMsg =
+                                        'Izin akses lokasi ditolak. Silakan aktifkan izin lokasi di pengaturan browser.';
+                                    break;
+                                case error.POSITION_UNAVAILABLE:
+                                    errorMsg = 'Informasi lokasi tidak tersedia.';
+                                    break;
+                                case error.TIMEOUT:
+                                    errorMsg = 'Waktu pengambilan lokasi habis. Silakan coba lagi.';
+                                    break;
+                            }
+                            locationStatus.textContent = errorMsg;
+                            locationSpinner.style.display = 'none';
+                            submitBtn.disabled = true;
+                            Swal.fire('Gagal!', errorMsg, 'error');
+                        }
+                    );
+                } else {
+                    const msg = 'Browser Anda tidak mendukung GPS.';
+                    locationStatus.textContent = msg;
+                    locationSpinner.style.display = 'none';
+                    submitBtn.disabled = true;
+                    Swal.fire('Gagal!', msg, 'error');
+                }
             }
 
-            // Proses Absensi
+            // Panggil getLocation saat halaman dimuat
+            getLocation();
+
+            // Proses submit form absensi menggunakan axios
             document.getElementById('absensiForm').addEventListener('submit', function(e) {
                 e.preventDefault();
-
-                // Validasi: karena ID diambil otomatis, cukup validasi foto
                 if (!photoData) {
-                    Swal.fire('Gagal!', 'Anda harus mengambil foto.', 'error');
+                    Swal.fire('Gagal!', 'Anda harus mengambil foto terlebih dahulu.', 'error');
                     return;
                 }
-
-                // Kirim data ke server
                 axios.post('{{ route('absensi.store') }}', {
                         role: document.querySelector('[name="role"]').value,
                         id: document.querySelector('[name="id"]').value,
-                        lokasi: document.getElementById('lokasi').value,
+                        lokasi: lokasiInput.value,
                         foto_wajah: photoData,
                     })
                     .then(response => {
                         Swal.fire('Berhasil!', response.data.message, 'success');
+                        // Reset form dan status lokasi
                         document.getElementById('absensiForm').reset();
                         photoPreview.classList.add('hidden');
-                        video.classList.remove('hidden'); // Tampilkan kembali video
-                        takePhotoButton.classList.remove('hidden'); // Tampilkan kembali tombol ambil foto
+                        video.classList.remove('hidden');
+                        takePhotoButton.classList.remove('hidden');
+                        submitBtn.disabled = true;
+                        lokasiInput.value = '';
+                        locationStatus.textContent = 'Mendapatkan lokasi...';
+                        locationSpinner.style.display = 'block';
+
+                        // Panggil ulang getLocation untuk persiapan absensi selanjutnya
+                        getLocation();
                     })
                     .catch(error => {
                         Swal.fire('Gagal!', error.response.data.message || 'Terjadi kesalahan.', 'error');
@@ -129,6 +176,4 @@
             });
         </script>
     </body>
-
-    </html>
 @endsection
