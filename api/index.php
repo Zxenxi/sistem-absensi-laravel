@@ -1,3 +1,17 @@
 <?php
-// Forward requests to Laravel's public entry point
-require __DIR__.'/../bootstrap/app.php';
+// File: api/index.php
+
+// Pastikan kamu mengubah path jika diperlukan
+require __DIR__ . '/../bootstrap/app.php';
+
+$app = require_once __DIR__ . '/../bootstrap/app.php';
+
+$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+
+$response = $kernel->handle(
+    $request = Illuminate\Http\Request::capture()
+);
+
+$response->send();
+
+$kernel->terminate($request, $response);
