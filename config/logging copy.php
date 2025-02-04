@@ -49,21 +49,21 @@ return [
     |                    "errorlog", "monolog", "custom", "stack"
     |
     */
+
     'channels' => [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => explode(',', env('LOG_STACK', 'single')),
             'ignore_exceptions' => false,
         ],
 
         'single' => [
             'driver' => 'single',
-            // Gunakan /tmp/laravel.log agar log dapat ditulis
-            'path' => env('LARAVEL_LOG_PATH', '/tmp/laravel.log'),
+            'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
         ],
-
 
         'daily' => [
             'driver' => 'daily',
