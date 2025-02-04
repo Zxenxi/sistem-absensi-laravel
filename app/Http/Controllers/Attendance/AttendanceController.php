@@ -30,7 +30,7 @@ class AttendanceController extends Controller
         // Tentukan koordinat sekolah dan radius absensi
         $schoolLat = -7.715143;   // Ganti dengan latitude sekolah Anda
         $schoolLng = 109.951598;   // Ganti dengan longitude sekolah Anda
-        $allowedRadius = 100000;   // Contoh: 100000 meter (sesuaikan sesuai kebutuhan)
+        $allowedRadius = 100000;      // Contoh: 100 meter (sesuaikan sesuai kebutuhan)
 
         // Parsing koordinat lokasi pengguna (format: "lat, lng")
         $lokasiUser = explode(',', $request->lokasi);
@@ -50,9 +50,9 @@ class AttendanceController extends Controller
             ], 403);
         }
 
-        // Set zona waktu ke Asia/UAE (GMT+7) dan ambil waktu sekarang
+        // Set zona waktu ke Asia/Jakarta (GMT+7) dan ambil waktu sekarang
         $now = Carbon::now('Asia/Jakarta');
-        $today = $now->format('Y-m-d');
+        $today = $now->toDateString();
 
         // Tentukan batas waktu absensi tepat pukul 07:00 pagi
         $startTime = Carbon::parse($today . ' 07:00:00', 'Asia/Jakarta');
@@ -72,7 +72,6 @@ class AttendanceController extends Controller
             $holidays = $response->json();
             $isHoliday = false;
             foreach ($holidays as $holiday) {
-                // Pastikan format tanggal yang dikembalikan API adalah 'YYYY-MM-DD'
                 if (isset($holiday['date']) && $holiday['date'] === $today) {
                     $isHoliday = true;
                     break;
@@ -84,7 +83,6 @@ class AttendanceController extends Controller
                 ], 403);
             }
         } else {
-            // Jika gagal mengambil data hari libur, kita kembalikan error.
             return response()->json([
                 'message' => 'Gagal memeriksa hari libur. Silakan coba lagi nanti.'
             ], 500);
@@ -92,10 +90,7 @@ class AttendanceController extends Controller
 
         // Proses absensi berdasarkan role (siswa atau guru)
         if ($request->role === 'siswa') {
-            $siswa = Auth::user()->siswa;
-            if (!$siswa) {
-                $siswa = Siswa::where('user_id', Auth::user()->id)->first();
-            }
+            $siswa = Auth::user()->siswa ?? Siswa::where('user_id', Auth::user()->id)->first();
             if (!$siswa) {
                 return response()->json([
                     'message' => 'Siswa tidak ditemukan. Pastikan akun Anda sudah terhubung dengan data siswa yang valid.'
@@ -113,16 +108,13 @@ class AttendanceController extends Controller
             Attendance::create([
                 'siswa_id'  => $siswa->id,
                 'guru_id'   => null,
-                'waktu'     => $now,
+                'waktu'     => $now->toDateTimeString(),
                 'status'    => $status,
                 'lokasi'    => $request->lokasi,
                 'foto_wajah'=> $this->saveFoto($request->foto_wajah),
             ]);
         } elseif ($request->role === 'guru') {
-            $guru = Auth::user()->guru;
-            if (!$guru) {
-                $guru = Guru::where('user_id', Auth::user()->id)->first();
-            }
+            $guru = Auth::user()->guru ?? Guru::where('user_id', Auth::user()->id)->first();
             if (!$guru) {
                 return response()->json([
                     'message' => 'Guru tidak ditemukan. Pastikan akun Anda sudah terhubung dengan data guru yang valid.'
@@ -140,7 +132,7 @@ class AttendanceController extends Controller
             Attendance::create([
                 'guru_id'   => $guru->id,
                 'siswa_id'  => null,
-                'waktu'     => $now,
+                'waktu'     => $now->toDateTimeString(),
                 'status'    => $status,
                 'lokasi'    => $request->lokasi,
                 'foto_wajah'=> $this->saveFoto($request->foto_wajah),

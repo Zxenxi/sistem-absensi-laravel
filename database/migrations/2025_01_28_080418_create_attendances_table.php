@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('guru_id')->nullable()->constrained('guru')->onDelete('cascade');
             $table->dateTime('waktu');
             $table->string('lokasi')->nullable();
-            $table->enum('status', ['Hadir', 'Sakit', 'Izin', 'Alfa']);
+            $table->enum('status', ['Hadir', 'Sakit', 'Izin', 'Alfa','Terlambat']);
             $table->string('foto_wajah')->nullable();
             $table->timestamps();
         });
