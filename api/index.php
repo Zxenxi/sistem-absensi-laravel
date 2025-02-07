@@ -2,16 +2,18 @@
 // File: api/index.php
 
 // Pastikan kamu mengubah path jika diperlukan
-require __DIR__ . '/../bootstrap/app.php';
+// Adjust the relative path if necessary
+require __DIR__ . '/../vendor/autoload.php';
+// $app = require_once __DIR__ . '/../bootstrap/app.php';
+// Then proceed to handle the request...
 
-$app = require_once __DIR__ . '/../bootstrap/app.php';
 
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+// $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
-$response = $kernel->handle(
-    $request = Illuminate\Http\Request::capture()
-);
+// $response = $kernel->handle(
+//     $request = Illuminate\Http\Request::capture()
+// );
 
-$response->send();
+// $response->send();
 
-$kernel->terminate($request, $response);
+// $kernel->terminate($request, $response);
