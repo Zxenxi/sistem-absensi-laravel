@@ -26,11 +26,11 @@ class AttendanceController extends Controller
             'lokasi'     => 'required|string',
             'foto_wajah' => 'required|string', // Foto dalam format Base64
         ]);
-
         // Tentukan koordinat sekolah dan radius absensi
-        $schoolLat = -7.715143;   // Ganti dengan latitude sekolah Anda
-        $schoolLng = 109.951598;   // Ganti dengan longitude sekolah Anda
-        $allowedRadius = 100000;      // Contoh: 100 meter (sesuaikan sesuai kebutuhan)
+        
+        $schoolLat =-7.709829747808012;   // Ganti dengan latitude sekolah Anda
+        $schoolLng =110.0077439397974;   // Ganti dengan longitude sekolah Anda
+        $allowedRadius = 60;      // Contoh: 100 meter (sesuaikan sesuai kebutuhan)
 
         // Parsing koordinat lokasi pengguna (format: "lat, lng")
         $lokasiUser = explode(',', $request->lokasi);
