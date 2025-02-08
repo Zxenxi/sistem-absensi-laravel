@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller; // Tambahkan jika belum ada
 use App\Models\Kelas; // Pastikan model Kelas ada
 
-class kelasController extends Controller
+class KelasController extends Controller
 {
     public function index()
     {

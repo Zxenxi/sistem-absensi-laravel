@@ -1,5 +1,5 @@
 <?php
-// File: api/index.php
+// api/index.php
 
 // Muat autoloader Composer
 require __DIR__ . '/../vendor/autoload.php';
@@ -7,7 +7,7 @@ require __DIR__ . '/../vendor/autoload.php';
 // Muat bootstrap aplikasi Laravel
 $app = require __DIR__ . '/../bootstrap/app.php';
 
-// Buat instance kernel untuk menangani HTTP request
+// Buat instance Kernel untuk menangani HTTP request
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
 // Tangkap request yang masuk
