@@ -1,19 +1,21 @@
 <?php
-// File: api/index.php
-
-// Pastikan kamu mengubah path jika diperlukan
-// Adjust the relative path if necessary
+// Muat autoloader Composer
 require __DIR__ . '/../vendor/autoload.php';
-$app = require_once __DIR__ . '/../bootstrap/app.php';
-// Then proceed to handle the request...
 
+// Muat bootstrap Laravel
+$app = require __DIR__ . '/../bootstrap/app.php';
 
-// $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+// Buat instance kernel untuk menangani HTTP request
+$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
-// $response = $kernel->handle(
-//     $request = Illuminate\Http\Request::capture()
-// );
+// Tangkap request yang masuk
+$request = Illuminate\Http\Request::capture();
 
-// $response->send();
+// Proses request dan dapatkan response
+$response = $kernel->handle($request);
 
-// $kernel->terminate($request, $response);
+// Kirim response ke browser
+$response->send();
+
+// Jalankan termination callbacks
+$kernel->terminate($request, $response);

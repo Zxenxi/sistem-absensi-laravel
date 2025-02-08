@@ -1,17 +1,19 @@
 {
     "version": 2,
-    "builds": [
-        {
-            "src": "public/index.php",
-            "use": "@vercel/php@latest"
+    "regions": ["fra1"],
+    "functions": {
+        "api/index.php": {
+            "runtime": "vercel-php@0.7.3"
         }
-    ],
+    },
     "routes": [
         {
+            "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|ttf|woff|woff2|eot|otf|webp|avif|txt))$",
+            "dest": "/public/$1"
+        },
+        {
             "src": "/(.*)",
-            "dest": "/public/index.php"
+            "dest": "/api/index.php"
         }
-    ],
-    "installCommand": "composer install --no-dev && npm install",
-    "buildCommand": "npm run build"
+    ]
 }
