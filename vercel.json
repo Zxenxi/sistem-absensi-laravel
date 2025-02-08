@@ -3,7 +3,7 @@
     "builds": [
         {
             "src": "public/index.php",
-            "use": "@vercel/php@8.2"
+            "use": "@vercel/php@latest"
         }
     ],
     "routes": [
