@@ -5,9 +5,8 @@
 | Create The Application
 |--------------------------------------------------------------------------
 |
-| File bootstrap ini bertanggung jawab untuk membuat instance aplikasi Laravel,
-| mengikat semua komponen, dan mengatur path penyimpanan serta cache agar sesuai
-| dengan lingkungan Vercel (read-only kecuali /tmp).
+| File bootstrap ini bertanggung jawab untuk membuat instance aplikasi Laravel.
+| Instance ini mengikat semua komponen Laravel dan menjadi container IoC untuk aplikasi.
 |
 */
 
@@ -17,29 +16,40 @@ $app = new Illuminate\Foundation\Application(
 
 /*
 |--------------------------------------------------------------------------
-| Override Lokasi Storage dan Cache
+| Override Lokasi Storage
 |--------------------------------------------------------------------------
 |
-| Di Vercel, sistem file bersifat read-only kecuali direktori /tmp. Oleh karena itu,
-| kita override lokasi penyimpanan (storage) dan path cache (konfigurasi, routes, services,
-| packages) agar berada di /tmp. Pastikan folder-folder ini dapat dibuat pada runtime.
+| Di Vercel, sistem file aplikasi (misalnya di /var/task) bersifat read-only kecuali
+| folder /tmp. Kita mengarahkan Laravel agar menggunakan /tmp/storage untuk menulis file
+| seperti log, cache, dan lain-lain.
 |
 */
 $app->useStoragePath('/tmp/storage');
 
-// Override lokasi cache agar tersimpan di /tmp/bootstrap/cache
-$app->useCachedConfigPath('/tmp/bootstrap/cache/config.php');
-$app->useCachedRoutesPath('/tmp/bootstrap/cache/routes.php');
-$app->useCachedServicesPath('/tmp/bootstrap/cache/services.php');
-$app->useCachedPackagesPath('/tmp/bootstrap/cache/packages.php');
+/*
+|--------------------------------------------------------------------------
+| Override Lokasi Cache Bootstrap
+|--------------------------------------------------------------------------
+|
+| Secara default, Laravel akan menulis file cache (seperti konfigurasi, routes, dan package manifest)
+| ke folder bootstrap/cache yang berada di basePath (read-only di Vercel).
+| Solusinya: kita override binding container "path.bootstrap.cache" agar menunjuk ke folder writable
+| misalnya /tmp/bootstrap/cache.
+|
+*/
+$cachePath = '/tmp/bootstrap/cache';
+if (! is_dir($cachePath)) {
+    mkdir($cachePath, 0777, true);
+}
+$app->instance('path.bootstrap.cache', $cachePath);
 
 /*
 |--------------------------------------------------------------------------
 | Bind Important Interfaces
 |--------------------------------------------------------------------------
 |
-| Berikut binding penting agar Laravel dapat menangani HTTP request, menjalankan perintah
-| CLI, dan menangani exception.
+| Berikut binding penting agar Laravel dapat meng-handle HTTP request, command-line,
+| dan exception secara benar.
 |
 */
 $app->singleton(
@@ -62,7 +72,8 @@ $app->singleton(
 | Return The Application
 |--------------------------------------------------------------------------
 |
-| Setelah semua konfigurasi selesai, kembalikan instance aplikasi.
+| Kembalikan instance aplikasi agar file entry point (misalnya public/index.php atau api/index.php)
+| dapat menggunakannya untuk memproses request.
 |
 */
 return $app;

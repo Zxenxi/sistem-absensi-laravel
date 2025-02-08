@@ -1,5 +1,5 @@
 <?php
-// File: api/index.php
+// api/index.php
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -11,4 +11,5 @@ $request = Illuminate\Http\Request::capture();
 $response = $kernel->handle($request);
 
 $response->send();
+
 $kernel->terminate($request, $response);
