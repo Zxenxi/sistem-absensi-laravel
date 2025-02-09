@@ -2,32 +2,27 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use Notifiable;
 
     /**
      * The attributes that are mass assignable.
-     *
-     * @var list<string>
      */
     protected $fillable = [
         'name',
         'email',
-        'role',
         'password',
+        'role',
+        'nisn',       // kolom nisn baru
+        'kelas_id',   // kolom kelas_id baru
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
+     * The attributes that should be hidden for arrays.
      */
     protected $hidden = [
         'password',
@@ -35,25 +30,10 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Relasi ke model Kelas.
      */
-    protected function casts(): array
+    public function kelas()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->belongsTo(\App\Models\Kelas::class, 'kelas_id');
     }
-    public function guru()
-    {
-        return $this->hasOne(\App\Models\Guru::class);
-    }
-    public function siswa()
-    {
-        return $this->hasOne(\App\Models\Siswa::class);
-    }
-    
-
 }

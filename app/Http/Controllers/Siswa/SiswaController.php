@@ -3,97 +3,152 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
-use App\Models\Siswa;
+use App\Models\User;
 use App\Models\Kelas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class SiswaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Tampilkan view data siswa (hanya user dengan role "siswa")
     public function siswa()
     {
-        // $siswa = Siswa::with('kelas')->get(); // Ambil data siswa beserta kelas
-        $siswa = Siswa::with('kelas')->get(); // Mengambil data siswa beserta relasi kelas
-        return view('siswa.index', compact('siswa')); // Menampilkan view index.blade.php dengan data siswa
-    }
-    public function index()
-    {
-        $siswa = Siswa::with('kelas')->get(); // Mengambil data siswa beserta relasi kelas
-        return response()->json(['siswa' => $siswa]); // Menampilkan view dengan data siswa
-    }
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        $kelas = Kelas::all(); // Ambil semua data kelas
-        return response()->json(['kelas' => $kelas]); // Mengembalikan data kelas dalam format JSON untuk modal
+        $siswa = User::where('role', 'siswa')->with('kelas')->get();
+        return view('siswa.index', compact('siswa'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Mengembalikan data siswa dalam format JSON
+    public function index()
+    {
+        $siswa = User::where('role', 'siswa')->with('kelas')->get();
+        return response()->json(['siswa' => $siswa]);
+    }
+
+    // Method create mengembalikan opsi dropdown untuk kelas, jurusan, dan tahun ajaran
+    public function create()
+    {
+        $kelas_options = Kelas::select('kelas')->distinct()->get();
+        $jurusan_options = Kelas::select('jurusan')->distinct()->get();
+        $tahun_ajaran_options = Kelas::select('tahun_ajaran')->distinct()->get();
+
+        return response()->json([
+            'kelas'         => $kelas_options,
+            'jurusan'       => $jurusan_options,
+            'tahun_ajaran'  => $tahun_ajaran_options
+        ]);
+    }
+
+    // Simpan data siswa baru ke tabel users
     public function store(Request $request)
     {
         $request->validate([
-            'nisn' => 'required|unique:siswa,nisn',
-            'nama' => 'required',
-            'kelas_id' => 'required|exists:kelas,id',
+            'nisn'         => 'required|unique:users,nisn',
+            'name'         => 'required',
+            'email'        => 'required|email|unique:users,email',
+            'password'     => 'required|min:6',
+            'kelas'        => 'required|string',
+            'jurusan'      => 'required|string',
+            'tahun_ajaran' => 'required|string',
         ]);
 
-        $siswa = Siswa::create([
-            'nisn' => $request->nisn,
-            'nama' => $request->nama,
-            'kelas_id' => $request->kelas_id,
+        // Cari record kelas yang sesuai dengan pilihan dropdown
+        $kelas_record = Kelas::where('kelas', $request->kelas)
+            ->where('jurusan', $request->jurusan)
+            ->where('tahun_ajaran', $request->tahun_ajaran)
+            ->first();
+
+        if (!$kelas_record) {
+            return response()->json(['message' => 'Data kelas tidak ditemukan.'], 404);
+        }
+
+        $siswa = User::create([
+            'nisn'     => $request->nisn,
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => Hash::make($request->password),
+            'role'     => 'siswa',
+            'kelas_id' => $kelas_record->id,
         ]);
 
-        return response()->json(['message' => 'Siswa created successfully', 'siswa' => $siswa]);
+        return response()->json([
+            'message' => 'Siswa created successfully',
+            'siswa'   => $siswa
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Siswa $siswa)
+    // Tampilkan detail siswa dalam format JSON
+    public function show(User $siswa)
     {
-        return response()->json(['siswa' => $siswa]); // Menampilkan detail siswa dalam format JSON
+        if ($siswa->role !== 'siswa') {
+            return response()->json(['message' => 'Data bukan siswa.'], 404);
+        }
+        $siswa->load('kelas');
+        return response()->json(['siswa' => $siswa]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Siswa $siswa)
+    // Mengembalikan data siswa untuk form edit beserta opsi dropdown
+    public function edit(User $siswa)
     {
-        $kelas = Kelas::all(); // Ambil semua data kelas
-        return response()->json(['siswa' => $siswa, 'kelas' => $kelas]); // Menampilkan siswa dan data kelas dalam format JSON untuk modal edit
+        if ($siswa->role !== 'siswa') {
+            return response()->json(['message' => 'Data bukan siswa.'], 404);
+        }
+        $siswa->load('kelas');
+        $kelas_options = Kelas::select('kelas')->distinct()->get();
+        $jurusan_options = Kelas::select('jurusan')->distinct()->get();
+        $tahun_ajaran_options = Kelas::select('tahun_ajaran')->distinct()->get();
+
+        return response()->json([
+            'siswa'               => $siswa,
+            'kelas_options'       => $kelas_options,
+            'jurusan_options'     => $jurusan_options,
+            'tahun_ajaran_options'=> $tahun_ajaran_options
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Siswa $siswa)
+    // Perbarui data siswa
+    public function update(Request $request, User $siswa)
     {
+        if ($siswa->role !== 'siswa') {
+            return response()->json(['message' => 'Data bukan siswa.'], 404);
+        }
+
         $request->validate([
-            'nisn' => 'required|unique:siswa,nisn,' . $siswa->id,
-            'nama' => 'required',
-            'kelas_id' => 'required|exists:kelas,id',
+            'nisn'         => 'required|unique:users,nisn,' . $siswa->id,
+            'name'         => 'required',
+            'email'        => 'required|email|unique:users,email,' . $siswa->id,
+            'kelas'        => 'required|string',
+            'jurusan'      => 'required|string',
+            'tahun_ajaran' => 'required|string',
         ]);
+
+        $kelas_record = Kelas::where('kelas', $request->kelas)
+            ->where('jurusan', $request->jurusan)
+            ->where('tahun_ajaran', $request->tahun_ajaran)
+            ->first();
+
+        if (!$kelas_record) {
+            return response()->json(['message' => 'Data kelas tidak ditemukan.'], 404);
+        }
 
         $siswa->update([
-            'nisn' => $request->nisn,
-            'nama' => $request->nama,
-            'kelas_id' => $request->kelas_id,
+            'nisn'     => $request->nisn,
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'kelas_id' => $kelas_record->id,
         ]);
 
-        return response()->json(['message' => 'Siswa updated successfully', 'siswa' => $siswa]);
+        return response()->json([
+            'message' => 'Siswa updated successfully',
+            'siswa'   => $siswa
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Siswa $siswa)
+    // Hapus data siswa
+    public function destroy(User $siswa)
     {
+        if ($siswa->role !== 'siswa') {
+            return response()->json(['message' => 'Data bukan siswa.'], 404);
+        }
         $siswa->delete();
         return response()->json(['message' => 'Siswa deleted successfully']);
     }

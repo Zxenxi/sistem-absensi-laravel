@@ -63,7 +63,7 @@
                             </li>
                             <li
                                 class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200">
-                                <a class="w-full" href="pages/404.html">Petugas Piket</a>
+                                <a class="w-full" href="/piket">Petugas Piket</a>
                             </li>
                         </ul>
                     </template>
@@ -152,7 +152,6 @@
                 </li>
             </ul>
         @elseif(Auth::user()->role === 'guru')
-            <!-- Untuk guru, tampilkan menu Dashboard plus menu CRUD Absensi (sesuai harapan) -->
             <ul>
                 <li class="relative px-6 py-3">
                     <button
@@ -161,7 +160,6 @@
                         <span class="inline-flex items-center">
                             <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke-linecap="round"
                                 stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
-                                <!-- Ganti icon dan label sesuai kebutuhan absensi guru -->
                                 <path d="M5 3v4M3 5h4" />
                             </svg>
                             <span class="ml-4">Absensi</span>
@@ -180,16 +178,25 @@
                             x-transition:leave-start="opacity-100 max-h-xl" x-transition:leave-end="opacity-0 max-h-0"
                             class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
                             aria-label="submenu">
-                            <li
-                                class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200">
-                                <a class="w-full" href="/absensi">Kelola Absensi</a>
-                            </li>
+                            @if (isOnDuty())
+                                <li
+                                    class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200">
+                                    <a class="w-full" href="{{ route('attendance.attendance') }}">Kelola Absensi</a>
+                                </li>
+                            @else
+                                <li
+                                    class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200">
+                                    <a class="w-full" href="/absensi">Absensi</a>
+                                </li>
+                            @endif
                         </ul>
                     </template>
                 </li>
-                <!-- Jika diperlukan, tambahkan item lain untuk guru -->
+                <!-- Item menu lain untuk guru jika diperlukan -->
             </ul>
         @endif
+
+
 
         <div class="px-6 my-6">
             <button
@@ -281,7 +288,7 @@
                             </li>
                             <li
                                 class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200">
-                                <a class="w-full" href="pages/404.html">Petugas Piket</a>
+                                <a class="w-full" href="/piket">Petugas Piket</a>
                             </li>
                             <li
                                 class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200">

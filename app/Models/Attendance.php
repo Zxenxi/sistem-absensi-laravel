@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -21,11 +22,12 @@ class Attendance extends Model
 
     // Relasi ke model guru
     public function guru(){
-    return $this->belongsTo(Guru::class);
+    return $this->belongsTo(User::class);
     }
     // Relasi ke model siswa
     public function siswa(){
     return $this->belongsTo(Siswa::class);
     }
+    
 
 }

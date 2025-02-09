@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,15 +12,15 @@ return new class extends Migration
     {
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('siswa_id')->nullable()->constrained('siswa')->onDelete('cascade'); // Ubah ini jadi nullable
-            $table->foreignId('guru_id')->nullable()->constrained('guru')->onDelete('cascade');
+            // Ubah foreign key dari 'siswa' menjadi 'users'
+            $table->foreignId('siswa_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('guru_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->dateTime('waktu');
             $table->string('lokasi')->nullable();
-            $table->enum('status', ['Hadir', 'Sakit', 'Izin', 'Alfa','Terlambat']);
+            $table->enum('status', ['Hadir', 'Sakit', 'Izin', 'Alfa', 'Terlambat']);
             $table->string('foto_wajah')->nullable();
             $table->timestamps();
         });
-        
     }
 
     /**

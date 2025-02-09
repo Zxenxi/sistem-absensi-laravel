@@ -1,6 +1,31 @@
 <?php
 use Illuminate\Support\Facades\Route;
 
+use Carbon\Carbon;
+use App\Models\PiketSchedule;
+use Illuminate\Support\Facades\Auth;
+
+if (! function_exists('isOnDuty')) {
+    function isOnDuty() {
+        if (Auth::check() && Auth::user()->role === 'guru') {
+            $now = Carbon::now('Asia/Jakarta');
+            $today = $now->toDateString();
+            $piket = PiketSchedule::where('guru_id', Auth::user()->id)
+                        ->whereDate('schedule_date', $today)
+                        ->first();
+            if ($piket) {
+                if ($piket->start_time && $piket->end_time) {
+                    $start = Carbon::parse($piket->start_time, 'Asia/Jakarta');
+                    $end   = Carbon::parse($piket->end_time, 'Asia/Jakarta');
+                    return $now->between($start, $end);
+                }
+                return true; // Jika tidak ada waktu, asumsikan bertugas penuh
+            }
+        }
+        return false;
+    }
+}
+
 
 if (!function_exists('isActive')) {
     function isActive($routeName)

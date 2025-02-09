@@ -1,25 +1,16 @@
 <?php
-
-namespace App\Console;
-
-use Illuminate\Console\Scheduling\Schedule;
-use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-
-class Kernel extends ConsoleKernel
-{
-    protected $commands = [
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        web: __DIR__.'/../routes/web.php',
+        commands: __DIR__.'/../routes/console.php',
+        health: '/up',
+    )
+    ->withMiddleware(function (Middleware $middleware) {
         //
-    ];
-
-    protected function schedule(Schedule $schedule)
-    {
-        // Define your command schedule here.
-    }
-
-    protected function commands()
-    {
-        $this->load(__DIR__.'/Commands');
-
-        // You can also put your custom commands here.
-    }
-}
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
+    })->create();

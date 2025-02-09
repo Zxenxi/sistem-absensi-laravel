@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -16,9 +15,12 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            // $table->string('role')->default('siswa')->nullable()->comment('Possible values: siswa, guru');
-            // $table->enum('role', ['siswa', 'guru']);
+            // Pastikan role default adalah siswa
             $table->string('role')->default('siswa');
+            // Tambahkan kolom nisn (boleh nullable jika tidak selalu diisi)
+            $table->string('nisn')->nullable();
+            // Tambahkan kolom kelas_id sebagai foreign key mengacu ke tabel kelas
+            $table->foreignId('kelas_id')->nullable()->constrained('kelas')->onDelete('cascade');
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
@@ -48,8 +50,5 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role');
-        });
     }
 };

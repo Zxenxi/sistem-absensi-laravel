@@ -2,22 +2,39 @@
 @extends('layouts.dashboard')
 
 @section('content')
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Form Absensi</title>
+        <!-- Tailwind CSS via CDN -->
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
+        <!-- Axios CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <!-- SweetAlert2 CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+    </head>
 
     <body class="bg-gray-100">
         <div class="min-h-screen flex items-center justify-center px-4 py-8">
             <div class="w-full max-w-md bg-white/30 backdrop-blur-lg rounded-lg shadow-xl p-8">
                 <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">Form Absensi</h1>
-
                 <form id="absensiForm" class="space-y-6">
                     <!-- Identitas Pengguna -->
                     <input type="hidden" name="role" value="{{ Auth::user()->role }}">
                     @if (Auth::user()->role === 'guru')
                         <input type="hidden" name="id" value="{{ Auth::user()->email }}">
                     @elseif(Auth::user()->role === 'siswa')
-                        <input type="hidden" name="id" value="{{ Auth::user()->siswa->nisn ?? '' }}">
+                        <!-- Karena data siswa disimpan di tabel users, gunakan data dari Auth::user() -->
+                        <input type="hidden" name="id" value="{{ Auth::user()->nisn }}">
                     @endif
 
-                    <!-- Input lokasi tersembunyi untuk menyimpan data koordinat -->
+                    <!-- Input lokasi tersembunyi -->
                     <input type="hidden" id="lokasi" name="lokasi">
 
                     <!-- Bagian Kamera & Foto -->
@@ -34,7 +51,7 @@
                         </div>
                     </div>
 
-                    <!-- Bagian Status Lokasi dengan Spinner -->
+                    <!-- Bagian Status Lokasi -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Status Lokasi</label>
                         <div id="locationContainer" class="flex items-center mt-1 space-x-2">
@@ -91,7 +108,7 @@
             });
 
             // Pengaturan Geolocation untuk mendapatkan lokasi pengguna
-            const lokasiInput = document.getElementById('lokasi'); // input tersembunyi
+            const lokasiInput = document.getElementById('lokasi');
             const locationStatus = document.getElementById('locationStatus');
             const locationSpinner = document.getElementById('locationSpinner');
             const submitBtn = document.getElementById('submitBtn');
@@ -102,15 +119,12 @@
                         function(position) {
                             const lat = position.coords.latitude;
                             const lng = position.coords.longitude;
-                            // Simpan koordinat pada input tersembunyi
                             lokasiInput.value = `${lat}, ${lng}`;
-                            // Update status dan sembunyikan spinner
                             locationStatus.textContent = 'Lokasi berhasil didapatkan.';
                             locationSpinner.style.display = 'none';
                             submitBtn.disabled = false;
                         },
                         function(error) {
-                            // Handling error dengan lebih detail berdasarkan kode error
                             let errorMsg = 'Gagal mendapatkan lokasi. Pastikan GPS aktif.';
                             switch (error.code) {
                                 case error.PERMISSION_DENIED:
@@ -138,8 +152,6 @@
                     Swal.fire('Gagal!', msg, 'error');
                 }
             }
-
-            // Panggil getLocation saat halaman dimuat
             getLocation();
 
             // Proses submit form absensi menggunakan axios
@@ -156,8 +168,12 @@
                         foto_wajah: photoData,
                     })
                     .then(response => {
-                        Swal.fire('Berhasil!', response.data.message, 'success');
-                        // Reset form dan status lokasi
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: response.data.message,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
                         document.getElementById('absensiForm').reset();
                         photoPreview.classList.add('hidden');
                         video.classList.remove('hidden');
@@ -166,8 +182,6 @@
                         lokasiInput.value = '';
                         locationStatus.textContent = 'Mendapatkan lokasi...';
                         locationSpinner.style.display = 'block';
-
-                        // Panggil ulang getLocation untuk persiapan absensi selanjutnya
                         getLocation();
                     })
                     .catch(error => {
@@ -176,4 +190,6 @@
             });
         </script>
     </body>
+
+    </html>
 @endsection

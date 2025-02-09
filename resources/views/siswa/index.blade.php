@@ -6,16 +6,15 @@
 
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Data Siswa (Tailwind Version)</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Data Siswa</title>
         <!-- Tailwind CSS via CDN -->
         <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <style>
-            /* Jika perlu, tambahkan style tambahan di sini */
-            /* halo */
+            /* Tambahan style jika diperlukan */
         </style>
     </head>
 
@@ -30,19 +29,19 @@
                 </button>
             </div>
             <!-- Tombol Tambah Siswa -->
-            <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md mb-4 transition-all"
-                onclick="showModal('addSiswaModal')">
+            <button onclick="showModal('addSiswaModal')"
+                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md mb-4">
                 Tambah Siswa
             </button>
-
             <!-- Tabel Data Siswa -->
             <div class="overflow-x-auto">
                 <table class="min-w-full bg-white dark:bg-gray-800 rounded shadow">
-                    <thead class="bg-gray-200 dark:bg-gray-700 border-b border-gray-300 dark:border-gray-600">
+                    <thead class="bg-gray-200 dark:bg-gray-700 border-b">
                         <tr>
                             <th class="px-4 py-2 text-left">ID</th>
                             <th class="px-4 py-2 text-left">NISN</th>
                             <th class="px-4 py-2 text-left">Nama</th>
+                            <th class="px-4 py-2 text-left">Email</th>
                             <th class="px-4 py-2 text-left">Kelas</th>
                             <th class="px-4 py-2 text-left">Jurusan</th>
                             <th class="px-4 py-2 text-left">Tahun Ajaran</th>
@@ -57,105 +56,116 @@
         </div>
 
         <!-- MODAL: Tambah Siswa -->
-        <div id="addSiswaModal" class="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-50 hidden">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-60 max-w-md mx-auto p-6">
-                <div class="flex justify-between items-center border-b pb-2 border-gray-300 dark:border-gray-600">
+        <div id="addSiswaModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-96 max-w-md p-6">
+                <div class="flex justify-between items-center border-b pb-2">
                     <h5 class="text-lg font-bold">Tambah Siswa</h5>
-                    <button class="text-gray-500 hover:text-gray-700" onclick="hideModal('addSiswaModal')">✖</button>
+                    <button onclick="hideModal('addSiswaModal')" class="text-gray-500 hover:text-gray-700">✖</button>
                 </div>
-                <div class="py-4">
-                    <form id="addSiswaForm">
-                        <div class="mb-3">
-                            <label for="addNISN" class="block font-semibold mb-1">NISN</label>
-                            <input type="text" id="addNISN" name="nisn"
-                                class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-gray-100">
-                        </div>
-                        <div class="mb-3">
-                            <label for="addNama" class="block font-semibold mb-1">Nama</label>
-                            <input type="text" id="addNama" name="nama"
-                                class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-gray-100">
-                        </div>
-                        <div class="mb-3">
-                            <label for="addKelasId" class="block font-semibold mb-1">Kelas</label>
-                            <select id="addKelasId" name="kelas_id"
-                                class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-gray-100">
-                                <!-- Data kelas akan di-load via AJAX -->
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="flex justify-end border-t pt-2 border-gray-300 dark:border-gray-600">
-                    <button
-                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-gray-100 px-4 py-2 rounded mr-2"
-                        onclick="hideModal('addSiswaModal')">Batal</button>
-                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-                        id="addSiswaButton">Simpan</button>
+                <form id="addSiswaForm" class="py-4">
+                    <div class="mb-3">
+                        <label for="addNISN" class="block font-semibold">NISN</label>
+                        <input type="text" id="addNISN" name="nisn" class="w-full border rounded px-3 py-2">
+                    </div>
+                    <div class="mb-3">
+                        <label for="addName" class="block font-semibold">Nama</label>
+                        <input type="text" id="addName" name="name" class="w-full border rounded px-3 py-2">
+                    </div>
+                    <div class="mb-3">
+                        <label for="addEmail" class="block font-semibold">Email</label>
+                        <input type="email" id="addEmail" name="email" class="w-full border rounded px-3 py-2">
+                    </div>
+                    <div class="mb-3">
+                        <label for="addPassword" class="block font-semibold">Password</label>
+                        <input type="password" id="addPassword" name="password" class="w-full border rounded px-3 py-2">
+                    </div>
+                    <!-- Dropdown untuk memilih Kelas -->
+                    <div class="mb-3">
+                        <label for="addKelas" class="block font-semibold">Kelas</label>
+                        <select id="addKelas" name="kelas" class="w-full border rounded px-3 py-2"></select>
+                    </div>
+                    <!-- Dropdown untuk memilih Jurusan -->
+                    <div class="mb-3">
+                        <label for="addJurusan" class="block font-semibold">Jurusan</label>
+                        <select id="addJurusan" name="jurusan" class="w-full border rounded px-3 py-2"></select>
+                    </div>
+                    <!-- Dropdown untuk memilih Tahun Ajaran -->
+                    <div class="mb-3">
+                        <label for="addTahunAjaran" class="block font-semibold">Tahun Ajaran</label>
+                        <select id="addTahunAjaran" name="tahun_ajaran" class="w-full border rounded px-3 py-2"></select>
+                    </div>
+                </form>
+                <div class="flex justify-end border-t pt-2">
+                    <button onclick="hideModal('addSiswaModal')"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded mr-2">Batal</button>
+                    <button id="addSiswaButton"
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Simpan</button>
                 </div>
             </div>
         </div>
 
         <!-- MODAL: Edit Siswa -->
-        <div id="editSiswaModal" class="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-50 hidden"
-            aria-labelledby="editSiswaModalLabel" aria-hidden="true">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-60 max-w-md mx-auto">
-                <div class="flex justify-between items-center border-b p-4 border-gray-300 dark:border-gray-600">
-                    <h5 class="text-lg font-bold" id="editSiswaModalLabel">Edit Siswa</h5>
-                    <button class="text-gray-500 hover:text-gray-700" onclick="hideModal('editSiswaModal')">&times;</button>
+        <div id="editSiswaModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-96 max-w-md mx-auto">
+                <div class="flex justify-between items-center border-b p-4">
+                    <h5 class="text-lg font-bold">Edit Siswa</h5>
+                    <button onclick="hideModal('editSiswaModal')" class="text-gray-500 hover:text-gray-700">✖</button>
                 </div>
-                <div class="p-4">
-                    <form id="editSiswaForm">
-                        <input type="hidden" id="editId" name="id">
-                        <div class="mb-3">
-                            <label for="editNISN" class="block font-semibold mb-1">NISN</label>
-                            <input type="text"
-                                class="w-full border border-gray-300 dark:bg-gray-700 dark:text-gray-100 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                id="editNISN" name="nisn">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editNama" class="block font-semibold mb-1">Nama</label>
-                            <input type="text"
-                                class="w-full border border-gray-300 dark:bg-gray-700 dark:text-gray-100 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                id="editNama" name="nama">
-                        </div>
-                        <div class="mb-3">
-                            <label for="editKelasId" class="block font-semibold mb-1">Kelas</label>
-                            <select
-                                class="w-full border border-gray-300 dark:bg-gray-700 dark:text-gray-100 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                id="editKelasId" name="kelas_id">
-                                <!-- Data kelas akan di-load via AJAX -->
-                            </select>
-                        </div>
-                    </form>
-                </div>
-                <div class="flex justify-end border-t p-4 border-gray-300 dark:border-gray-600">
-                    <button
-                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-gray-100 px-4 py-2 rounded mr-2"
-                        onclick="hideModal('editSiswaModal')">Close</button>
-                    <button class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-                        id="editSiswaButton">Save</button>
+                <form id="editSiswaForm" class="p-4">
+                    <input type="hidden" id="editId" name="id">
+                    <div class="mb-3">
+                        <label for="editNISN" class="block font-semibold">NISN</label>
+                        <input type="text" id="editNISN" name="nisn" class="w-full border rounded px-3 py-2">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editName" class="block font-semibold">Nama</label>
+                        <input type="text" id="editName" name="name" class="w-full border rounded px-3 py-2">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editEmail" class="block font-semibold">Email</label>
+                        <input type="email" id="editEmail" name="email" class="w-full border rounded px-3 py-2">
+                    </div>
+                    <!-- Dropdown untuk memilih Kelas -->
+                    <div class="mb-3">
+                        <label for="editKelas" class="block font-semibold">Kelas</label>
+                        <select id="editKelas" name="kelas" class="w-full border rounded px-3 py-2"></select>
+                    </div>
+                    <!-- Dropdown untuk memilih Jurusan -->
+                    <div class="mb-3">
+                        <label for="editJurusan" class="block font-semibold">Jurusan</label>
+                        <select id="editJurusan" name="jurusan" class="w-full border rounded px-3 py-2"></select>
+                    </div>
+                    <!-- Dropdown untuk memilih Tahun Ajaran -->
+                    <div class="mb-3">
+                        <label for="editTahunAjaran" class="block font-semibold">Tahun Ajaran</label>
+                        <select id="editTahunAjaran" name="tahun_ajaran"
+                            class="w-full border rounded px-3 py-2"></select>
+                    </div>
+                </form>
+                <div class="flex justify-end border-t p-4">
+                    <button onclick="hideModal('editSiswaModal')"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded mr-2">Batal</button>
+                    <button id="editSiswaButton"
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Simpan</button>
                 </div>
             </div>
         </div>
 
         <!-- MODAL: Hapus Siswa -->
-        <div id="deleteSiswaModal"
-            class="fixed inset-0 z-30 flex items-center justify-center bg-black bg-opacity-50 hidden"
-            aria-labelledby="deleteSiswaModalLabel" aria-hidden="true">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-60 max-w-md mx-auto">
-                <div class="flex justify-between items-center border-b p-4 border-gray-300 dark:border-gray-600">
-                    <h5 class="text-lg font-bold" id="deleteSiswaModalLabel">Hapus Siswa</h5>
-                    <button class="text-gray-500 hover:text-gray-700"
-                        onclick="hideModal('deleteSiswaModal')">&times;</button>
+        <div id="deleteSiswaModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-96 max-w-md mx-auto">
+                <div class="flex justify-between items-center border-b p-4">
+                    <h5 class="text-lg font-bold">Hapus Siswa</h5>
+                    <button onclick="hideModal('deleteSiswaModal')" class="text-gray-500 hover:text-gray-700">✖</button>
                 </div>
                 <div class="p-4">
                     <p>Apakah Anda yakin ingin menghapus siswa ini?</p>
                 </div>
-                <div class="flex justify-end border-t p-4 border-gray-300 dark:border-gray-600">
-                    <button
-                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-gray-100 px-4 py-2 rounded mr-2"
-                        onclick="hideModal('deleteSiswaModal')">Close</button>
-                    <button class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
-                        id="deleteSiswaButton">Delete</button>
+                <div class="flex justify-end border-t p-4">
+                    <button onclick="hideModal('deleteSiswaModal')"
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded mr-2">Batal</button>
+                    <button id="deleteSiswaButton"
+                        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Hapus</button>
                 </div>
             </div>
         </div>
@@ -165,7 +175,6 @@
             <span id="notificationMessage"></span>
         </div>
 
-        <!-- Input tersembunyi untuk menyimpan ID delete -->
         <input type="hidden" id="deleteId">
 
         <!-- Fungsi Modal Global -->
@@ -185,14 +194,12 @@
         <script>
             function toggleDarkMode() {
                 document.documentElement.classList.toggle('dark');
-                // Simpan preferensi di localStorage
                 if (document.documentElement.classList.contains('dark')) {
                     localStorage.setItem('theme', 'dark');
                 } else {
                     localStorage.setItem('theme', 'light');
                 }
             }
-            // Set dark mode berdasarkan preferensi pengguna atau sistem saat halaman dimuat
             (function() {
                 if (localStorage.getItem('theme') === 'dark' ||
                     (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -206,51 +213,57 @@
         <!-- Script AJAX dan fungsi CRUD -->
         <script>
             $(document).ready(function() {
-                // Load data kelas untuk form tambah & edit
+                // Load opsi dropdown untuk kelas, jurusan, tahun ajaran
                 fetchKelasOptions();
                 // Load data siswa awal
                 loadData();
 
-                // ---------------------------
-                // FUNGSI: Tambah Siswa
-                // ---------------------------
-                $('#addSiswaButton').click(function() {
-                    var formData = $('#addSiswaForm').serialize();
-                    $.ajax({
-                        url: '{{ route('siswa.store') }}',
-                        type: 'POST',
-                        data: formData,
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            hideModal('addSiswaModal'); // Sembunyikan modal setelah berhasil tambah
-                            $('#addSiswaForm')[0].reset();
-                            loadData();
-                            showNotification('Siswa berhasil ditambahkan', 'success');
-                        },
-                        error: function(xhr) {
-                            alert(xhr.responseText);
-                        }
-                    });
-                });
-
-                // ---------------------------
-                // FUNGSI: Load Kelas Options
-                // ---------------------------
                 function fetchKelasOptions() {
                     $.ajax({
                         url: '{{ route('siswa.create') }}',
                         type: 'GET',
                         success: function(response) {
-                            var kelas = response.kelas;
-                            $('#addKelasId').empty();
-                            $('#editKelasId').empty();
-                            kelas.forEach(function(k) {
-                                var option = '<option value="' + k.id + '">' + k.kelas + ' - ' + k
-                                    .jurusan + ' - ' + k.tahun_ajaran + '</option>';
-                                $('#addKelasId').append(option);
-                                $('#editKelasId').append(option);
+                            var kelasOptions = response.kelas;
+                            var jurusanOptions = response.jurusan;
+                            var tahunAjaranOptions = response.tahun_ajaran;
+
+                            var addKelasSelect = $('#addKelas');
+                            var addJurusanSelect = $('#addJurusan');
+                            var addTahunAjaranSelect = $('#addTahunAjaran');
+                            addKelasSelect.empty();
+                            addJurusanSelect.empty();
+                            addTahunAjaranSelect.empty();
+                            kelasOptions.forEach(function(opt) {
+                                addKelasSelect.append('<option value="' + opt.kelas + '">' + opt
+                                    .kelas + '</option>');
+                            });
+                            jurusanOptions.forEach(function(opt) {
+                                addJurusanSelect.append('<option value="' + opt.jurusan + '">' + opt
+                                    .jurusan + '</option>');
+                            });
+                            tahunAjaranOptions.forEach(function(opt) {
+                                addTahunAjaranSelect.append('<option value="' + opt.tahun_ajaran +
+                                    '">' + opt.tahun_ajaran + '</option>');
+                            });
+
+                            // Untuk modal edit, populate dropdown serupa
+                            var editKelasSelect = $('#editKelas');
+                            var editJurusanSelect = $('#editJurusan');
+                            var editTahunAjaranSelect = $('#editTahunAjaran');
+                            editKelasSelect.empty();
+                            editJurusanSelect.empty();
+                            editTahunAjaranSelect.empty();
+                            kelasOptions.forEach(function(opt) {
+                                editKelasSelect.append('<option value="' + opt.kelas + '">' + opt
+                                    .kelas + '</option>');
+                            });
+                            jurusanOptions.forEach(function(opt) {
+                                editJurusanSelect.append('<option value="' + opt.jurusan + '">' +
+                                    opt.jurusan + '</option>');
+                            });
+                            tahunAjaranOptions.forEach(function(opt) {
+                                editTahunAjaranSelect.append('<option value="' + opt.tahun_ajaran +
+                                    '">' + opt.tahun_ajaran + '</option>');
                             });
                         },
                         error: function(xhr) {
@@ -259,9 +272,6 @@
                     });
                 }
 
-                // ---------------------------
-                // FUNGSI: Load Data Siswa
-                // ---------------------------
                 function loadData() {
                     $.ajax({
                         url: '{{ route('siswa.index') }}',
@@ -273,11 +283,11 @@
                             var siswa = response.siswa;
                             var html = '';
                             siswa.forEach(function(s) {
-                                html +=
-                                    '<tr class="border-b border-gray-200 dark:border-gray-700">';
+                                html += '<tr class="border-b">';
                                 html += '<td class="px-4 py-2">' + s.id + '</td>';
                                 html += '<td class="px-4 py-2">' + s.nisn + '</td>';
-                                html += '<td class="px-4 py-2">' + s.nama + '</td>';
+                                html += '<td class="px-4 py-2">' + s.name + '</td>';
+                                html += '<td class="px-4 py-2">' + s.email + '</td>';
                                 html += '<td class="px-4 py-2">' + (s.kelas ? s.kelas.kelas :
                                     'N/A') + '</td>';
                                 html += '<td class="px-4 py-2">' + (s.kelas ? s.kelas.jurusan :
@@ -298,14 +308,32 @@
                         },
                         error: function(xhr) {
                             console.error('Error loading data:', xhr.responseText);
-                            alert('Error loading data. Silakan cek console untuk detail.');
+                            alert('Error loading data.');
                         }
                     });
                 }
 
-                // ---------------------------
-                // FUNGSI: Edit Siswa (Ambil data & tampilkan modal)
-                // ---------------------------
+                $('#addSiswaButton').click(function() {
+                    var formData = $('#addSiswaForm').serialize();
+                    $.ajax({
+                        url: '{{ route('siswa.store') }}',
+                        type: 'POST',
+                        data: formData,
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        success: function(response) {
+                            hideModal('addSiswaModal');
+                            $('#addSiswaForm')[0].reset();
+                            loadData();
+                            showNotification(response.message, 'success');
+                        },
+                        error: function(xhr) {
+                            alert(xhr.responseText);
+                        }
+                    });
+                });
+
                 $(document).on('click', '.editSiswa', function() {
                     var id = $(this).data('id');
                     $.ajax({
@@ -314,20 +342,26 @@
                         success: function(response) {
                             $('#editId').val(response.siswa.id);
                             $('#editNISN').val(response.siswa.nisn);
-                            $('#editNama').val(response.siswa.nama);
-                            $('#editKelasId').val(response.siswa.kelas_id);
+                            $('#editName').val(response.siswa.name);
+                            $('#editEmail').val(response.siswa.email);
+                            if (response.siswa.kelas) {
+                                $('#editKelas').val(response.siswa.kelas.kelas);
+                                $('#editJurusan').val(response.siswa.kelas.jurusan);
+                                $('#editTahunAjaran').val(response.siswa.kelas.tahun_ajaran);
+                            } else {
+                                $('#editKelas').val('');
+                                $('#editJurusan').val('');
+                                $('#editTahunAjaran').val('');
+                            }
                             showModal('editSiswaModal');
                         },
                         error: function(xhr) {
                             console.error('Error fetching data:', xhr.responseText);
-                            alert('Error fetching data. Lihat console untuk detail.');
+                            alert('Error fetching data.');
                         }
                     });
                 });
 
-                // ---------------------------
-                // FUNGSI: Update Siswa
-                // ---------------------------
                 $('#editSiswaButton').click(function() {
                     var id = $('#editId').val();
                     var formData = $('#editSiswaForm').serialize();
@@ -345,23 +379,17 @@
                         },
                         error: function(xhr) {
                             console.error('Error updating siswa:', xhr.responseText);
-                            alert('Error updating siswa. Silakan cek console.');
+                            alert('Error updating siswa.');
                         }
                     });
                 });
 
-                // ---------------------------
-                // FUNGSI: Konfirmasi Hapus Siswa
-                // ---------------------------
                 $(document).on('click', '.deleteSiswa', function() {
                     var id = $(this).data('id');
                     $('#deleteId').val(id);
                     showModal('deleteSiswaModal');
                 });
 
-                // ---------------------------
-                // FUNGSI: Hapus Siswa
-                // ---------------------------
                 $('#deleteSiswaButton').click(function() {
                     var id = $('#deleteId').val();
                     $.ajax({
@@ -377,22 +405,18 @@
                         },
                         error: function(xhr) {
                             console.error('Error deleting siswa:', xhr.responseText);
-                            alert('Error deleting siswa. Silakan cek console.');
+                            alert('Error deleting siswa.');
                         }
                     });
                 });
 
-                // ---------------------------
-                // FUNGSI: Notification
-                // ---------------------------
                 function showNotification(message, type = 'success') {
-                    const notification = document.getElementById('notification');
-                    const messageSpan = document.getElementById('notificationMessage');
-                    messageSpan.textContent = message;
-                    notification.classList.remove('hidden', 'bg-blue-600', 'bg-red-600');
-                    notification.classList.add(type === 'success' ? 'bg-blue-600' : 'bg-red-600');
-                    setTimeout(() => {
-                        notification.classList.add('hidden');
+                    var notification = $('#notification');
+                    $('#notificationMessage').text(message);
+                    notification.removeClass('hidden bg-blue-600 bg-red-600');
+                    notification.addClass(type === 'success' ? 'bg-blue-600' : 'bg-red-600');
+                    setTimeout(function() {
+                        notification.addClass('hidden');
                     }, 3000);
                 }
             });

@@ -51,23 +51,25 @@ Route::get('/forms',function(){
 })->name('forms');
 
 Route::middleware('auth')->group(function () {
-    Route::resource('kelas', kelasController::class);  // Akan menghasilkan route: index, create, store, show, edit, update, destroy.
-    Route::get('/fetch', [kelasController::class, 'fetchKelas'])->name('kelas.fetch');
-    Route::post('/store', [kelasController::class, 'store'])->name('kelas.store');
-    Route::get('/kelas/{id}', [kelasController::class, 'show'])->name('kelas.show'); // Menambahkan rute untuk mendapatkan data kelas
-    Route::put('/kelas/{id}', [kelasController::class, 'update'])->name('kelas.update');  // Menggunakan PUT untuk update
-    Route::delete('/kelas/{id}', [kelasController::class, 'destroy'])->name('kelas.destroy');
+    Route::resource('kelas', KelasController::class);  // Akan menghasilkan route: index, create, store, show, edit, update, destroy.
+    Route::get('/fetch', [KelasController::class, 'fetchKelas'])->name('kelas.fetch');
+    Route::post('/store', [KelasController::class, 'store'])->name('kelas.store');
+    Route::get('/kelas/{id}', [KelasController::class, 'show'])->name('kelas.show'); // Menambahkan rute untuk mendapatkan data kelas
+    Route::put('/kelas/{id}', [KelasController::class, 'update'])->name('kelas.update');  // Menggunakan PUT untuk update
+    Route::delete('/kelas/{id}', [KelasController::class, 'destroy'])->name('kelas.destroy');
 });
 
 // routes/web.php
+
 Route::middleware('auth')->group(function () {
     Route::get('/siswa/index', [SiswaController::class, 'siswa'])->name('siswa.siswa'); // Menampilkan halaman siswa
-    Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa.index'); // Menampilkan halaman siswa
-    Route::get('/siswa/create', [SiswaController::class, 'create'])->name('siswa.create'); // Menampilkan form tambah siswa
-    Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store'); // Menyimpan siswa baru
-    Route::get('/siswa/{siswa}/edit', [SiswaController::class, 'edit'])->name('siswa.edit'); // Menampilkan form edit siswa
-    Route::put('/siswa/{siswa}', [SiswaController::class, 'update'])->name('siswa.update'); // Update siswa
-    Route::delete('/siswa/{siswa}', [SiswaController::class, 'destroy'])->name('siswa.destroy'); // Hapus siswa
+    Route::resource('siswa', SiswaController::class);
+//     Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa.index'); // Menampilkan halaman siswa
+//     Route::get('/siswa/create', [SiswaController::class, 'create'])->name('siswa.create'); // Menampilkan form tambah siswa
+//     Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store'); // Menyimpan siswa baru
+//     Route::get('/siswa/{siswa}/edit', [SiswaController::class, 'edit'])->name('siswa.edit'); // Menampilkan form edit siswa
+//     Route::put('/siswa/{siswa}', [SiswaController::class, 'update'])->name('siswa.update'); // Update siswa
+//     Route::delete('/siswa/{siswa}', [SiswaController::class, 'destroy'])->name('siswa.destroy'); // Hapus siswa
 });
 
 // routing guru
@@ -83,6 +85,33 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
 Route::get('/absensi', [AttendanceController::class, 'index'])->name('attendances.index');
 Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.store');
+Route::get('/absensi', [AttendanceController::class, 'index'])->name('absensi.form');
+});
+
+use App\Http\Controllers\Piket\PiketController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('piket', PiketController::class);
+});
+
+
+
+
+Route::middleware(['auth'])->group(function () {
+    // Resource route untuk manajemen piket dengan CRUD Ajax
+    Route::resource('piket', PiketController::class);
+
+    // Routes untuk absensi
+    Route::get('/absensi', [AttendanceController::class, 'index'])->name('attendance.index');
+    Route::post('/absensi', [AttendanceController::class, 'store'])->name('attendance.store');
+    Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.store');
+    Route::get('/attendance/{attendance}', [AttendanceController::class, 'show']);
+    Route::put('/attendance/{attendance}', [AttendanceController::class, 'update']);
+    Route::delete('/attendance/{attendance}', [AttendanceController::class, 'destroy']);
+
+    // Dashboard absensi untuk guru petugas piket
+    Route::get('/dashboard-absensi', [AttendanceController::class, 'dashboard'])->name('attendance.dashboard');
+    Route::get('/dashboard-absen', [AttendanceController::class, 'managements'])->name('attendance.attendance');
 });
 
 

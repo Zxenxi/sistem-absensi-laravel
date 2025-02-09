@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-<html :class="{ 'theme-dark': dark }" x-data="{ role: '{{ old('role', '') }}' }" lang="en">
+<html x-data="{ role: '{{ old('role', '') }}' }" lang="en">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create account - Windmill Dashboard</title>
+    <title>Create Account - Registration</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="{{ asset('assets/css/tailwind.output.css') }}" />
-    <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
-    <script src="{{ asset('assets/js/init-alpine.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 </head>
 
 <body class="bg-gray-50 dark:bg-gray-900">
@@ -27,7 +26,7 @@
                 <div class="flex items-center justify-center p-6 sm:p-12 md:w-1/2">
                     <div class="w-full">
                         <h1 class="mb-4 text-xl font-semibold text-gray-700 dark:text-gray-200">
-                            Create account
+                            Create Account
                         </h1>
                         <form method="POST" action="{{ route('register') }}" class="space-y-6">
                             @csrf
@@ -37,7 +36,7 @@
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
                                 <input id="name" name="name" type="text" required autofocus
                                     class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 form-input"
-                                    placeholder="Your Name" />
+                                    placeholder="Your Name" value="{{ old('name') }}" />
                                 @error('name')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -48,7 +47,7 @@
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                                 <input id="email" name="email" type="email" required
                                     class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 form-input"
-                                    placeholder="example@example.com" />
+                                    placeholder="example@example.com" value="{{ old('email') }}" />
                                 @error('email')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -80,29 +79,45 @@
                             <!-- Role Selection -->
                             <div class="mt-4">
                                 <label for="role"
-                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Daftar
-                                    Sebagai</label>
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Register
+                                    As</label>
                                 <select id="role" name="role" x-model="role"
                                     class="block w-full mt-1 border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                                    <option value="">Pilih Role</option>
-                                    <option value="siswa">Siswa</option>
-                                    <option value="guru">Guru</option>
+                                    <option value="">Select Role</option>
+                                    <option value="siswa" @if (old('role') == 'siswa') selected @endif>Siswa
+                                    </option>
+                                    <option value="guru" @if (old('role') == 'guru') selected @endif>Guru
+                                    </option>
                                 </select>
                                 @error('role')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
-                            <!-- Field NISN (hanya muncul jika role = siswa) -->
-                            <div class="mt-4" x-show="role === 'siswa'"
-                                x-transition:enter="transition ease-out duration-300"
-                                x-transition:enter-start="opacity-0 transform -translate-y-2"
-                                x-transition:enter-end="opacity-100 transform translate-y-0">
+                            <!-- Field NISN & Dropdown Kelas (hanya muncul jika role = siswa) -->
+                            <div class="mt-4" x-show="role === 'siswa'" x-transition>
                                 <label for="nisn"
                                     class="block text-sm font-medium text-gray-700 dark:text-gray-300">NISN</label>
                                 <input id="nisn" name="nisn" type="text"
                                     class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 form-input"
-                                    placeholder="Masukkan NISN" />
+                                    placeholder="Masukkan NISN" value="{{ old('nisn') }}" />
                                 @error('nisn')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div class="mt-4" x-show="role === 'siswa'" x-transition>
+                                <label for="kelas_id"
+                                    class="block text-sm font-medium text-gray-700 dark:text-gray-300">Pilih
+                                    Kelas</label>
+                                <select id="kelas_id" name="kelas_id"
+                                    class="block w-full mt-1 border-gray-300 rounded shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                                    <option value="">Pilih Kelas</option>
+                                    @foreach ($kelas_options as $kelas)
+                                        <option value="{{ $kelas->id }}">
+                                            {{ $kelas->kelas }} - {{ $kelas->jurusan }} - {{ $kelas->tahun_ajaran }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('kelas_id')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -126,4 +141,3 @@
 </body>
 
 </html>
-<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>

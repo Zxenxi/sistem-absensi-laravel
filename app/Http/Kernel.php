@@ -1,41 +1,41 @@
 <?php
 
-namespace App\Http;
+namespace App\Console;
 
-use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
-class Kernel extends HttpKernel
+class Kernel extends ConsoleKernel
 {
     /**
-     * The application's global HTTP middleware stack.
+     * The Artisan commands provided by your application.
      *
-     * @var array<int, class-string>
+     * @var array
      */
-    protected $middleware = [
-        // Contoh: \App\Http\Middleware\CheckForMaintenanceMode::class,
+    protected $commands = [
+        // 
     ];
 
     /**
-     * The application's route middleware groups.
+     * Define the application's command schedule.
      *
-     * @var array<string, array<int, class-string>>
+     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
+     * @return void
      */
-    protected $middlewareGroups = [
-        'web' => [
-            // Middleware untuk grup web
-        ],
-
-        'api' => [
-            // Middleware untuk grup api
-        ],
-    ];
+    protected function schedule(Schedule $schedule)
+    {
+        // Define your command schedule here.
+    }
 
     /**
-     * The application's route middleware.
+     * Register the commands for the application.
      *
-     * @var array<string, class-string>
+     * @return void
      */
-    protected $routeMiddleware = [
-        // Middleware per route
-    ];
+    protected function commands()
+    {
+        $this->load(__DIR__.'/Commands');
+
+        // You can also include your custom commands here.
+    }
 }
