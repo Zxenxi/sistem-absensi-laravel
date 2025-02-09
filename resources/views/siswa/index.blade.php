@@ -12,6 +12,8 @@
         <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet">
         <!-- jQuery -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <!-- SweetAlert2 -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <meta name="csrf-token" content="{{ csrf_token() }}">
         <style>
             /* Tambahan style jika diperlukan */
@@ -22,11 +24,6 @@
         <div class="container mx-auto py-8">
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl font-bold mb-4">Data Siswa</h1>
-                <!-- Tombol Toggle Dark Mode -->
-                <button onclick="toggleDarkMode()"
-                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 px-4 py-2 rounded">
-                    Toggle Dark Mode
-                </button>
             </div>
             <!-- Tombol Tambah Siswa -->
             <button onclick="showModal('addSiswaModal')"
@@ -151,31 +148,7 @@
             </div>
         </div>
 
-        <!-- MODAL: Hapus Siswa -->
-        <div id="deleteSiswaModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-96 max-w-md mx-auto">
-                <div class="flex justify-between items-center border-b p-4">
-                    <h5 class="text-lg font-bold">Hapus Siswa</h5>
-                    <button onclick="hideModal('deleteSiswaModal')" class="text-gray-500 hover:text-gray-700">✖</button>
-                </div>
-                <div class="p-4">
-                    <p>Apakah Anda yakin ingin menghapus siswa ini?</p>
-                </div>
-                <div class="flex justify-end border-t p-4">
-                    <button onclick="hideModal('deleteSiswaModal')"
-                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded mr-2">Batal</button>
-                    <button id="deleteSiswaButton"
-                        class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded">Hapus</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- NOTIFICATION -->
-        <div id="notification" class="hidden fixed top-5 right-5 p-4 bg-blue-600 text-white rounded shadow">
-            <span id="notificationMessage"></span>
-        </div>
-
-        <input type="hidden" id="deleteId">
+        <!-- HAPUS SISWA menggunakan SweetAlert2 (modal custom dihapus) -->
 
         <!-- Fungsi Modal Global -->
         <script>
@@ -267,7 +240,7 @@
                             });
                         },
                         error: function(xhr) {
-                            alert(xhr.responseText);
+                            Swal.fire('Error', xhr.responseText, 'error');
                         }
                     });
                 }
@@ -307,8 +280,7 @@
                             $('#siswaTableBody').html(html);
                         },
                         error: function(xhr) {
-                            console.error('Error loading data:', xhr.responseText);
-                            alert('Error loading data.');
+                            Swal.fire('Error', 'Error loading data.', 'error');
                         }
                     });
                 }
@@ -326,10 +298,16 @@
                             hideModal('addSiswaModal');
                             $('#addSiswaForm')[0].reset();
                             loadData();
-                            showNotification(response.message, 'success');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: response.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
                         },
                         error: function(xhr) {
-                            alert(xhr.responseText);
+                            Swal.fire('Error', xhr.responseText, 'error');
                         }
                     });
                 });
@@ -356,8 +334,7 @@
                             showModal('editSiswaModal');
                         },
                         error: function(xhr) {
-                            console.error('Error fetching data:', xhr.responseText);
-                            alert('Error fetching data.');
+                            Swal.fire('Error', 'Error fetching data.', 'error');
                         }
                     });
                 });
@@ -375,50 +352,56 @@
                         success: function(response) {
                             hideModal('editSiswaModal');
                             loadData();
-                            showNotification(response.message, 'success');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: response.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
                         },
                         error: function(xhr) {
-                            console.error('Error updating siswa:', xhr.responseText);
-                            alert('Error updating siswa.');
+                            Swal.fire('Error', 'Error updating siswa.', 'error');
                         }
                     });
                 });
 
                 $(document).on('click', '.deleteSiswa', function() {
                     var id = $(this).data('id');
-                    $('#deleteId').val(id);
-                    showModal('deleteSiswaModal');
-                });
-
-                $('#deleteSiswaButton').click(function() {
-                    var id = $('#deleteId').val();
-                    $.ajax({
-                        url: '/siswa/' + id,
-                        type: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
-                        success: function(response) {
-                            hideModal('deleteSiswaModal');
-                            loadData();
-                            showNotification(response.message, 'success');
-                        },
-                        error: function(xhr) {
-                            console.error('Error deleting siswa:', xhr.responseText);
-                            alert('Error deleting siswa.');
+                    Swal.fire({
+                        title: 'Konfirmasi',
+                        text: 'Apakah Anda yakin ingin menghapus siswa ini?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Hapus',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: '/siswa/' + id,
+                                type: 'DELETE',
+                                headers: {
+                                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                                },
+                                success: function(response) {
+                                    loadData();
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Berhasil',
+                                        text: response.message,
+                                        timer: 2000,
+                                        showConfirmButton: false
+                                    });
+                                },
+                                error: function(xhr) {
+                                    Swal.fire('Error', 'Error deleting siswa.', 'error');
+                                }
+                            });
                         }
                     });
                 });
-
-                function showNotification(message, type = 'success') {
-                    var notification = $('#notification');
-                    $('#notificationMessage').text(message);
-                    notification.removeClass('hidden bg-blue-600 bg-red-600');
-                    notification.addClass(type === 'success' ? 'bg-blue-600' : 'bg-red-600');
-                    setTimeout(function() {
-                        notification.addClass('hidden');
-                    }, 3000);
-                }
             });
         </script>
     </body>

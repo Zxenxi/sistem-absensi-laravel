@@ -20,7 +20,8 @@
 </head>
 
 <body>
-    <div class="flex h-screen bg-gray-50 dark:bg-gray-900" :class="{ 'overflow-hidden': isSideMenuOpen }">
+    <div class="flex h-screen bg-gray-50 dark:bg-gray-900">
+        {{-- <div class="flex h-screen bg-gray-50 dark:bg-gray-900" :class="{ 'overflow-hidden': isSideMenuOpen }"> --}}
         @include('dashboard.components.sidebar')
         <main class="h-full overflow-y-auto">
             @yield('content')

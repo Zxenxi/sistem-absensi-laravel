@@ -31,10 +31,6 @@
             </table>
         </div>
 
-        <div id="notification"
-            class="fixed justify-center bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hidden z-50 transition-opacity duration-300">
-            <span id="notificationMessage"></span>
-        </div>
         <!-- Modal Tambah/Edit Kelas -->
         <div id="modalKelas"
             class="fixed inset-0 flex items-center justify-center hidden z-50 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity">
@@ -78,37 +74,14 @@
             </div>
         </div>
 
-        <!-- Modal Konfirmasi Hapus -->
-        <div id="modalHapus"
-            class="fixed inset-0 flex items-center justify-center hidden z-50 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity hidden">
-            <div class="bg-white dark:bg-gray-800 rounded-lg max-w-xs p-6 shadow-lg w-20">
-                <h2 class="text-xl font-bold mb-4 text-gray-700 dark:text-gray-200">Konfirmasi Hapus</h2>
-                <p class="text-gray-700 mb-4 dark:text-gray-300">Apakah Anda yakin ingin menghapus data ini?</p>
-                <div class="flex justify-end space-x-2">
-                    <button type="button" onclick="hideModal('modalHapus')"
-                        class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple">Batal</button>
-                    <button id="deleteBtn"
-                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md dark:bg-red-700 dark:hover:bg-red-800">Hapus</button>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <!-- Script -->
     <script>
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            const messageSpan = document.getElementById('notificationMessage');
+        // Pastikan SweetAlert2 sudah dimuat, misalnya dengan:
+        // <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11">
 
-            messageSpan.textContent = message;
-            notification.classList.remove('hidden', 'bg-blue-600', 'bg-blue-600');
-            notification.classList.add(type === 'success' ? 'bg-blue-600' : 'bg-blue-600');
 
-            setTimeout(() => {
-                notification.classList.add('hidden');
-            }, 3000);
-        }
         // Load Data Kelas
         function fetchKelas() {
             fetch('{{ route('kelas.fetch') }}')
@@ -121,23 +94,23 @@
                     tbody.innerHTML = '';
                     data.data.forEach((kelas, index) => {
                         tbody.innerHTML += `
-                            <tr>
-                                <td class='px-4 py-2 text-gray-700 dark:text-gray-300'>${index + 1}</td>
-                                <td class='px-4 py-2 text-gray-700 dark:text-gray-300'>${kelas.kelas}</td>
-                                <td class='px-4 py-2 text-gray-700 dark:text-gray-300'>${kelas.jurusan}</td>
-                                <td class='px-4 py-2 text-gray-700 dark:text-gray-300'>${kelas.tahun_ajaran}</td>
-                                <td class='px-4 py-2 text-center'>
-                                    <button onclick='editKelas(${kelas.id})' 
-                                            class='bg-blue-600 hover:bg-yellow-600 text-white px-4 py-2 rounded-md dark:bg-blue-700 dark:hover:bg-yellow-700'>Edit</button> 
-                                    <button onclick='confirmDelete(${kelas.id})' 
-                                            class='bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md dark:bg-red-700 dark:hover:bg-red-800'>Hapus</button> 
-                                </td> 
-                            </tr>`;
+    <tr>
+        <td class='px-4 py-2 text-gray-700 dark:text-gray-300'>${index + 1}</td>
+        <td class='px-4 py-2 text-gray-700 dark:text-gray-300'>${kelas.kelas}</td>
+        <td class='px-4 py-2 text-gray-700 dark:text-gray-300'>${kelas.jurusan}</td>
+        <td class='px-4 py-2 text-gray-700 dark:text-gray-300'>${kelas.tahun_ajaran}</td>
+        <td class='px-4 py-2 text-center'>
+            <button onclick='editKelas(${kelas.id})'
+                class='bg-blue-600 hover:bg-yellow-600 text-white px-4 py-2 rounded-md dark:bg-blue-700 dark:hover:bg-yellow-700'>Edit</button>
+            <button onclick='confirmDelete(${kelas.id})'
+                class='bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md dark:bg-red-700 dark:hover:bg-red-800'>Hapus</button>
+        </td>
+    </tr>`;
                     });
                 })
                 .catch(error => {
                     console.error('Error fetching kelas:', error);
-                    alert('Terjadi kesalahan saat memuat data kelas.');
+                    Swal.fire('Error', 'Terjadi kesalahan saat memuat data kelas.', 'error');
                 });
         }
 
@@ -170,19 +143,26 @@
                         jurusan: document.getElementById('jurusan').value,
                         tahun_ajaran: document.getElementById('tahun_ajaran').value
                     })
-                }).then(response => response.json())
+                })
+                .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         fetchKelas();
                         hideModal('modalKelas');
-                        showNotification('Data kelas berhasil disimpan.', 'success');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: 'Data kelas berhasil disimpan.',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
                     } else {
-                        alert('Gagal menyimpan data.');
+                        Swal.fire('Error', 'Gagal menyimpan data.', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error saving kelas:', error);
-                    alert('Terjadi kesalahan saat menyimpan data.');
+                    Swal.fire('Error', 'Terjadi kesalahan saat menyimpan data.', 'error');
                 });
         });
 
@@ -203,46 +183,54 @@
                         document.getElementById('modalKelasLabel').textContent = 'Edit Kelas';
                         showModal('modalKelas');
                     } else {
-                        alert('Gagal memuat data kelas.');
+                        Swal.fire('Error', 'Gagal memuat data kelas.', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error fetching kelas data:', error);
-                    alert('Terjadi kesalahan saat memuat data kelas.');
+                    Swal.fire('Error', 'Terjadi kesalahan saat memuat data kelas.', 'error');
                 });
         }
 
-        // Hapus Data
-        let deleteId = null;
-
+        // Hapus Data dengan SweetAlert2 Confirmation
         function confirmDelete(id) {
-            deleteId = id;
-            showModal('modalHapus');
+            Swal.fire({
+                title: 'Konfirmasi Hapus',
+                text: 'Apakah Anda yakin ingin menghapus data ini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Hapus',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    deleteKelas(id);
+                }
+            });
         }
 
-        document.getElementById('deleteBtn').addEventListener('click', function() {
-            if (deleteId) {
-                fetch(`/kelas/${deleteId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    }).then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            fetchKelas();
-                            hideModal('modalHapus');
-                            showNotification('Data kelas berhasil dihapus.', 'success')
-                        } else {
-                            alert('Gagal menghapus data.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error deleting kelas:', error);
-                        alert('Terjadi kesalahan saat menghapus data.');
-                    });
-            }
-        });
+        function deleteKelas(id) {
+            fetch(`/kelas/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        fetchKelas();
+                        Swal.fire('Deleted!', 'Data kelas berhasil dihapus.', 'success');
+                    } else {
+                        Swal.fire('Error', 'Gagal menghapus data.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting kelas:', error);
+                    Swal.fire('Error', 'Terjadi kesalahan saat menghapus data.', 'error');
+                });
+        }
 
         // Load Data Saat Halaman Dimuat
         fetchKelas();

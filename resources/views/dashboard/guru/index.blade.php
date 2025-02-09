@@ -28,12 +28,6 @@
             </table>
         </div>
 
-        <!-- Notifikasi -->
-        <div id="notification"
-            class="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hidden transition-opacity duration-300">
-            <span id="notificationMessage"></span>
-        </div>
-
         <!-- Modal Tambah Guru -->
         <div id="modalAddGuru"
             class="fixed inset-0 flex items-center justify-center hidden z-50 bg-black bg-opacity-50 backdrop-blur-sm">
@@ -65,7 +59,7 @@
 
         <!-- Modal Edit Guru -->
         <div id="modalEditGuru"
-            class="fixed inset-0 flex items-center justify-center hidden z-50 bg-black bg-opacity-50 backdrop-blur-sm ">
+            class="fixed inset-0 flex items-center justify-center hidden z-50 bg-black bg-opacity-50 backdrop-blur-sm">
             <div class="bg-white dark:bg-gray-800 rounded-lg max-w-xl p-6 w-full">
                 <h2 class="text-xl font-bold mb-4">Edit Guru</h2>
                 <form id="formEditGuru" class="space-y-4">
@@ -83,35 +77,12 @@
                 </form>
             </div>
         </div>
-
-        <!-- Modal Hapus Guru -->
-        <div id="modalDeleteGuru"
-            class="fixed inset-0 flex items-center justify-center hidden z-50 bg-black bg-opacity-50 backdrop-blur-sm">
-            <div class="bg-white dark:bg-gray-800 rounded-lg max-w-md p-6 w-full">
-                <h2 class="text-xl font-bold mb-4">Konfirmasi Hapus</h2>
-                <p class="mb-6">Apakah Anda yakin ingin menghapus data guru ini?</p>
-                <div class="flex justify-end space-x-4">
-                    <button type="button" onclick="hideModal('modalDeleteGuru')"
-                        class="bg-gray-600 text-white px-4 py-2 rounded">Batal</button>
-                    <button type="button" id="confirmDeleteGuru"
-                        class="bg-red-600 text-white px-4 py-2 rounded">Hapus</button>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <script>
-        // Fungsi notifikasi
-        function notification(message, type = 'success') {
-            const notif = document.getElementById('notification');
-            document.getElementById('notificationMessage').textContent = message;
-            notif.classList.remove('hidden', 'bg-green-500', 'bg-red-500');
-            notif.classList.add(type === 'success' ? 'bg-green-500' : 'bg-red-500');
-            setTimeout(() => {
-                notif.classList.add('hidden');
-            }, 3000);
-        }
+    <!-- Sertakan SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <script>
         // Fungsi show/hide modal
         function showModal(id) {
             document.getElementById(id).classList.remove('hidden');
@@ -146,7 +117,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    notification('Terjadi kesalahan saat mengambil data guru', 'error');
+                    Swal.fire('Error', 'Terjadi kesalahan saat mengambil data guru', 'error');
                 });
         }
 
@@ -174,18 +145,24 @@
                     if (data.success) {
                         fetchGuru();
                         hideModal('modalAddGuru');
-                        notification('Data guru berhasil disimpan', 'success');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: 'Data guru berhasil disimpan',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
                     } else {
-                        notification('Gagal menyimpan data guru', 'error');
+                        Swal.fire('Error', 'Gagal menyimpan data guru', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    notification('Terjadi kesalahan saat menyimpan data guru', 'error');
+                    Swal.fire('Error', 'Terjadi kesalahan saat menyimpan data guru', 'error');
                 });
         });
 
-        // Buka modal edit dan isi data
+        // Buka modal edit dan isi data guru
         function editGuru(id) {
             fetch(`/guru/${id}`)
                 .then(response => response.json())
@@ -196,12 +173,12 @@
                         document.getElementById('edit_name').value = guru.name;
                         showModal('modalEditGuru');
                     } else {
-                        notification('Data guru tidak ditemukan', 'error');
+                        Swal.fire('Error', 'Data guru tidak ditemukan', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    notification('Terjadi kesalahan saat mengambil data guru', 'error');
+                    Swal.fire('Error', 'Terjadi kesalahan saat mengambil data guru', 'error');
                 });
         }
 
@@ -226,52 +203,66 @@
                     if (data.success) {
                         fetchGuru();
                         hideModal('modalEditGuru');
-                        notification('Data guru berhasil diperbarui', 'success');
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil',
+                            text: 'Data guru berhasil diperbarui',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
                     } else {
-                        notification('Gagal memperbarui data guru', 'error');
+                        Swal.fire('Error', 'Gagal memperbarui data guru', 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    notification('Terjadi kesalahan saat memperbarui data guru', 'error');
+                    Swal.fire('Error', 'Terjadi kesalahan saat memperbarui data guru', 'error');
                 });
         });
 
-        // Hapus guru: buka modal konfirmasi hapus
-        let guruToDelete = null;
-
+        // Hapus guru menggunakan SweetAlert2 untuk konfirmasi
         function deleteGuru(id) {
-            guruToDelete = id;
-            showModal('modalDeleteGuru');
+            Swal.fire({
+                title: 'Konfirmasi Hapus',
+                text: 'Apakah Anda yakin ingin menghapus data guru ini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Hapus',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/guru/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                fetchGuru();
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: 'Data guru berhasil dihapus',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                });
+                            } else {
+                                Swal.fire('Error', 'Gagal menghapus data guru', 'error');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire('Error', 'Terjadi kesalahan saat menghapus data guru', 'error');
+                        });
+                }
+            });
         }
 
-        // Konfirmasi hapus guru
-        document.getElementById('confirmDeleteGuru').addEventListener('click', function() {
-            if (guruToDelete) {
-                fetch(`/guru/${guruToDelete}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            fetchGuru();
-                            hideModal('modalDeleteGuru');
-                            notification('Data guru berhasil dihapus', 'success');
-                        } else {
-                            notification('Gagal menghapus data guru', 'error');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        notification('Terjadi kesalahan saat menghapus data guru', 'error');
-                    });
-            }
-        });
-
-        // Panggil data saat halaman pertama kali dimuat
+        // Panggil data guru saat halaman pertama kali dimuat
         fetchGuru();
     </script>
 @endsection

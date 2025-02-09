@@ -1,5 +1,5 @@
 <!-- Desktop sidebar -->
-<aside class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0">
+<aside class="z-1 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0">
     <div class="py-4 text-gray-500 dark:text-gray-400">
         <a class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="#">
             SIA PENABUR
@@ -379,7 +379,7 @@
     </div>
 </aside>
 <div class="flex flex-col flex-1 w-full">
-    <header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800">
+    <header class="z-2 py-4 bg-white shadow-md dark:bg-gray-800">
         <div
             class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300">
             <!-- Mobile hamburger -->
