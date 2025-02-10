@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container grid px-6 mx-auto">
-        <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">Manajemen Data Guru</h2>
+        <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-white">Manajemen Data Guru</h2>
         <!-- Tombol Tambah Guru -->
         <div class="flex justify-between mb-8">
             <button onclick="showModal('modalAddGuru')"
@@ -12,7 +12,7 @@
         </div>
 
         <!-- Tabel Data Guru -->
-        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg">
+        <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg dark:text-white">
             <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                 <thead class="bg-gray-200 dark:bg-gray-700">
                     <tr>
@@ -69,6 +69,17 @@
                         <label for="edit_name" class="block text-sm font-medium">Nama Guru</label>
                         <input type="text" id="edit_name" name="name" class="w-full border rounded-md p-2" required>
                     </div>
+                    <div>
+                        <label for="edit_email" class="block text-sm font-medium">Email</label>
+                        <input type="email" id="edit_email" name="email" class="w-full border rounded-md p-2" required>
+                    </div>
+                    <div>
+                        <label for="edit_password" class="block text-sm font-medium">
+                            Password <span class="text-xs italic text-gray-500">(Kosongkan jika tidak ingin
+                                mengganti)</span>
+                        </label>
+                        <input type="password" id="edit_password" name="password" class="w-full border rounded-md p-2">
+                    </div>
                     <div class="flex justify-end space-x-4">
                         <button type="button" onclick="hideModal('modalEditGuru')"
                             class="bg-gray-600 text-white px-4 py-2 rounded">Batal</button>
@@ -83,7 +94,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-        // Fungsi show/hide modal
+        // Fungsi untuk menampilkan dan menyembunyikan modal
         function showModal(id) {
             document.getElementById(id).classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
@@ -121,7 +132,7 @@
                 });
         }
 
-        // Tambah guru
+        // Proses penambahan guru
         document.getElementById('formAddGuru').addEventListener('submit', function(event) {
             event.preventDefault();
             const name = document.getElementById('add_name').value;
@@ -162,7 +173,7 @@
                 });
         });
 
-        // Buka modal edit dan isi data guru
+        // Membuka modal edit dan mengisi data guru
         function editGuru(id) {
             fetch(`/guru/${id}`)
                 .then(response => response.json())
@@ -171,6 +182,9 @@
                         const guru = data.data;
                         document.getElementById('edit_id').value = guru.id;
                         document.getElementById('edit_name').value = guru.name;
+                        document.getElementById('edit_email').value = guru.email;
+                        // Kosongkan field password agar user dapat mengisi jika ingin mengganti
+                        document.getElementById('edit_password').value = '';
                         showModal('modalEditGuru');
                     } else {
                         Swal.fire('Error', 'Data guru tidak ditemukan', 'error');
@@ -182,11 +196,13 @@
                 });
         }
 
-        // Update guru
+        // Proses update data guru
         document.getElementById('formEditGuru').addEventListener('submit', function(event) {
             event.preventDefault();
             const id = document.getElementById('edit_id').value;
             const name = document.getElementById('edit_name').value;
+            const email = document.getElementById('edit_email').value;
+            const password = document.getElementById('edit_password').value; // Bisa kosong
 
             fetch(`/guru/${id}`, {
                     method: 'PUT',
@@ -195,7 +211,9 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     body: JSON.stringify({
-                        name
+                        name,
+                        email,
+                        password
                     })
                 })
                 .then(response => response.json())
@@ -220,7 +238,7 @@
                 });
         });
 
-        // Hapus guru menggunakan SweetAlert2 untuk konfirmasi
+        // Hapus guru dengan konfirmasi menggunakan SweetAlert2
         function deleteGuru(id) {
             Swal.fire({
                 title: 'Konfirmasi Hapus',

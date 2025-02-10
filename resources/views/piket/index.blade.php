@@ -22,7 +22,7 @@
     <body class="bg-gray-100">
         <div class="container mx-auto px-4 py-8">
             <h1 class="text-2xl font-bold mb-4">Manajemen Jadwal Petugas Piket</h1>
-            <button id="addBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded mb-4">Tambah Jadwal
+            <button id="addBtn" class="bg-blue-600 hover:bg-green-600 text-white px-4 py-2 rounded mb-4">Tambah Jadwal
                 Piket</button>
             <table class="min-w-full bg-white shadow rounded">
                 <thead>
@@ -97,7 +97,7 @@
               <td class="px-4 py-2">${sch.end_time ? sch.end_time : '-'}</td>
               <td class="px-4 py-2">
                 <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded mr-2" onclick="editSchedule(${sch.id})">Edit</button>
-                <button class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded" onclick="deleteSchedule(${sch.id})">Hapus</button>
+                <button class="bg-red-600 hover:bg-red-600 text-white px-2 py-1 rounded" onclick="deleteSchedule(${sch.id})">Hapus</button>
               </td>
             </tr>`;
                         });

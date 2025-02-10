@@ -57,22 +57,34 @@ class GuruController extends Controller
         return response()->json(['success' => true, 'data' => $guru]);
     }
 
-    // Perbarui data guru
+    // Perbarui data guru (mengubah nama, email, dan password)
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'name'  => 'required|string|max:255'
-        ]);
-        
         $guru = User::where('role', 'guru')->find($id);
-        if ($guru) {
-            $guru->update([
-                'name' => $request->name,
-                // Jika ingin memperbarui email atau password, tambahkan validasi dan update di sini
-            ]);
-            return response()->json(['success' => true, 'data' => $guru]);
+        if (!$guru) {
+            return response()->json(['success' => false, 'message' => 'Guru tidak ditemukan.'], 404);
         }
-        return response()->json(['success' => false, 'message' => 'Guru tidak ditemukan.'], 404);
+
+        // Validasi input; jika password diisi, harus memenuhi minimal 6 karakter
+        $validatedData = $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:6'
+        ]);
+
+        $updateData = [
+            'name'  => $validatedData['name'],
+            'email' => $validatedData['email'],
+        ];
+
+        // Jika password diisi, update password (hash password baru)
+        if ($request->filled('password')) {
+            $updateData['password'] = Hash::make($request->password);
+        }
+
+        $guru->update($updateData);
+
+        return response()->json(['success' => true, 'data' => $guru]);
     }
 
     // Hapus data guru

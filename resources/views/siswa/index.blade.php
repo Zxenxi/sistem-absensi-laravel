@@ -15,9 +15,6 @@
         <!-- SweetAlert2 -->
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <style>
-            /* Tambahan style jika diperlukan */
-        </style>
     </head>
 
     <body class="bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100">
@@ -40,8 +37,6 @@
                             <th class="px-4 py-2 text-left">Nama</th>
                             <th class="px-4 py-2 text-left">Email</th>
                             <th class="px-4 py-2 text-left">Kelas</th>
-                            <th class="px-4 py-2 text-left">Jurusan</th>
-                            <th class="px-4 py-2 text-left">Tahun Ajaran</th>
                             <th class="px-4 py-2 text-left">Aksi</th>
                         </tr>
                     </thead>
@@ -76,20 +71,10 @@
                         <label for="addPassword" class="block font-semibold">Password</label>
                         <input type="password" id="addPassword" name="password" class="w-full border rounded px-3 py-2">
                     </div>
-                    <!-- Dropdown untuk memilih Kelas -->
+                    <!-- Single dropdown untuk Kelas -->
                     <div class="mb-3">
                         <label for="addKelas" class="block font-semibold">Kelas</label>
-                        <select id="addKelas" name="kelas" class="w-full border rounded px-3 py-2"></select>
-                    </div>
-                    <!-- Dropdown untuk memilih Jurusan -->
-                    <div class="mb-3">
-                        <label for="addJurusan" class="block font-semibold">Jurusan</label>
-                        <select id="addJurusan" name="jurusan" class="w-full border rounded px-3 py-2"></select>
-                    </div>
-                    <!-- Dropdown untuk memilih Tahun Ajaran -->
-                    <div class="mb-3">
-                        <label for="addTahunAjaran" class="block font-semibold">Tahun Ajaran</label>
-                        <select id="addTahunAjaran" name="tahun_ajaran" class="w-full border rounded px-3 py-2"></select>
+                        <select id="addKelas" name="kelas_id" class="w-full border rounded px-3 py-2"></select>
                     </div>
                 </form>
                 <div class="flex justify-end border-t pt-2">
@@ -122,21 +107,10 @@
                         <label for="editEmail" class="block font-semibold">Email</label>
                         <input type="email" id="editEmail" name="email" class="w-full border rounded px-3 py-2">
                     </div>
-                    <!-- Dropdown untuk memilih Kelas -->
+                    <!-- Single dropdown untuk Kelas -->
                     <div class="mb-3">
                         <label for="editKelas" class="block font-semibold">Kelas</label>
-                        <select id="editKelas" name="kelas" class="w-full border rounded px-3 py-2"></select>
-                    </div>
-                    <!-- Dropdown untuk memilih Jurusan -->
-                    <div class="mb-3">
-                        <label for="editJurusan" class="block font-semibold">Jurusan</label>
-                        <select id="editJurusan" name="jurusan" class="w-full border rounded px-3 py-2"></select>
-                    </div>
-                    <!-- Dropdown untuk memilih Tahun Ajaran -->
-                    <div class="mb-3">
-                        <label for="editTahunAjaran" class="block font-semibold">Tahun Ajaran</label>
-                        <select id="editTahunAjaran" name="tahun_ajaran"
-                            class="w-full border rounded px-3 py-2"></select>
+                        <select id="editKelas" name="kelas_id" class="w-full border rounded px-3 py-2"></select>
                     </div>
                 </form>
                 <div class="flex justify-end border-t p-4">
@@ -147,8 +121,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- HAPUS SISWA menggunakan SweetAlert2 (modal custom dihapus) -->
 
         <!-- Fungsi Modal Global -->
         <script>
@@ -163,30 +135,10 @@
             }
         </script>
 
-        <!-- Dark Mode Toggle Script -->
-        <script>
-            function toggleDarkMode() {
-                document.documentElement.classList.toggle('dark');
-                if (document.documentElement.classList.contains('dark')) {
-                    localStorage.setItem('theme', 'dark');
-                } else {
-                    localStorage.setItem('theme', 'light');
-                }
-            }
-            (function() {
-                if (localStorage.getItem('theme') === 'dark' ||
-                    (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            })();
-        </script>
-
         <!-- Script AJAX dan fungsi CRUD -->
         <script>
             $(document).ready(function() {
-                // Load opsi dropdown untuk kelas, jurusan, tahun ajaran
+                // Load opsi dropdown untuk kelas
                 fetchKelasOptions();
                 // Load data siswa awal
                 loadData();
@@ -196,47 +148,19 @@
                         url: '{{ route('siswa.create') }}',
                         type: 'GET',
                         success: function(response) {
-                            var kelasOptions = response.kelas;
-                            var jurusanOptions = response.jurusan;
-                            var tahunAjaranOptions = response.tahun_ajaran;
-
                             var addKelasSelect = $('#addKelas');
-                            var addJurusanSelect = $('#addJurusan');
-                            var addTahunAjaranSelect = $('#addTahunAjaran');
-                            addKelasSelect.empty();
-                            addJurusanSelect.empty();
-                            addTahunAjaranSelect.empty();
-                            kelasOptions.forEach(function(opt) {
-                                addKelasSelect.append('<option value="' + opt.kelas + '">' + opt
-                                    .kelas + '</option>');
-                            });
-                            jurusanOptions.forEach(function(opt) {
-                                addJurusanSelect.append('<option value="' + opt.jurusan + '">' + opt
-                                    .jurusan + '</option>');
-                            });
-                            tahunAjaranOptions.forEach(function(opt) {
-                                addTahunAjaranSelect.append('<option value="' + opt.tahun_ajaran +
-                                    '">' + opt.tahun_ajaran + '</option>');
-                            });
-
-                            // Untuk modal edit, populate dropdown serupa
                             var editKelasSelect = $('#editKelas');
-                            var editJurusanSelect = $('#editJurusan');
-                            var editTahunAjaranSelect = $('#editTahunAjaran');
+                            addKelasSelect.empty();
                             editKelasSelect.empty();
-                            editJurusanSelect.empty();
-                            editTahunAjaranSelect.empty();
-                            kelasOptions.forEach(function(opt) {
-                                editKelasSelect.append('<option value="' + opt.kelas + '">' + opt
-                                    .kelas + '</option>');
-                            });
-                            jurusanOptions.forEach(function(opt) {
-                                editJurusanSelect.append('<option value="' + opt.jurusan + '">' +
-                                    opt.jurusan + '</option>');
-                            });
-                            tahunAjaranOptions.forEach(function(opt) {
-                                editTahunAjaranSelect.append('<option value="' + opt.tahun_ajaran +
-                                    '">' + opt.tahun_ajaran + '</option>');
+
+                            // Populate dropdown dengan opsi dari kelas_options
+                            response.kelas_options.forEach(function(kelas) {
+                                var optionText = kelas.kelas + " - " + kelas.jurusan + " - " + kelas
+                                    .tahun_ajaran;
+                                addKelasSelect.append('<option value="' + kelas.id + '">' +
+                                    optionText + '</option>');
+                                editKelasSelect.append('<option value="' + kelas.id + '">' +
+                                    optionText + '</option>');
                             });
                         },
                         error: function(xhr) {
@@ -261,21 +185,17 @@
                                 html += '<td class="px-4 py-2">' + s.nisn + '</td>';
                                 html += '<td class="px-4 py-2">' + s.name + '</td>';
                                 html += '<td class="px-4 py-2">' + s.email + '</td>';
-                                html += '<td class="px-4 py-2">' + (s.kelas ? s.kelas.kelas :
-                                    'N/A') + '</td>';
-                                html += '<td class="px-4 py-2">' + (s.kelas ? s.kelas.jurusan :
-                                    'N/A') + '</td>';
-                                html += '<td class="px-4 py-2">' + (s.kelas ? s.kelas.tahun_ajaran :
-                                    'N/A') + '</td>';
+                                html += '<td class="px-4 py-2">' + (s.kelas ? (s.kelas.kelas +
+                                    " - " + s.kelas.jurusan + " - " + s.kelas.tahun_ajaran
+                                ) : 'N/A') + '</td>';
                                 html += '<td class="px-4 py-2">';
                                 html +=
                                     '<button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded mr-2 editSiswa" data-id="' +
                                     s.id + '">Edit</button>';
                                 html +=
-                                    '<button class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded deleteSiswa" data-id="' +
+                                    '<button class="bg-red-600 hover:bg-red-600 text-white px-2 py-1 rounded deleteSiswa" data-id="' +
                                     s.id + '">Hapus</button>';
-                                html += '</td>';
-                                html += '</tr>';
+                                html += '</td></tr>';
                             });
                             $('#siswaTableBody').html(html);
                         },
@@ -285,6 +205,7 @@
                     });
                 }
 
+                // Tambah Siswa
                 $('#addSiswaButton').click(function() {
                     var formData = $('#addSiswaForm').serialize();
                     $.ajax({
@@ -312,24 +233,23 @@
                     });
                 });
 
+                // Buka modal Edit Siswa dan populate data
                 $(document).on('click', '.editSiswa', function() {
                     var id = $(this).data('id');
                     $.ajax({
                         url: '/siswa/' + id + '/edit',
                         type: 'GET',
                         success: function(response) {
+                            // Pastikan dropdown selalu diperbarui
+                            fetchKelasOptions();
                             $('#editId').val(response.siswa.id);
                             $('#editNISN').val(response.siswa.nisn);
                             $('#editName').val(response.siswa.name);
                             $('#editEmail').val(response.siswa.email);
                             if (response.siswa.kelas) {
-                                $('#editKelas').val(response.siswa.kelas.kelas);
-                                $('#editJurusan').val(response.siswa.kelas.jurusan);
-                                $('#editTahunAjaran').val(response.siswa.kelas.tahun_ajaran);
+                                $('#editKelas').val(response.siswa.kelas.id);
                             } else {
                                 $('#editKelas').val('');
-                                $('#editJurusan').val('');
-                                $('#editTahunAjaran').val('');
                             }
                             showModal('editSiswaModal');
                         },
@@ -339,6 +259,7 @@
                     });
                 });
 
+                // Update Siswa
                 $('#editSiswaButton').click(function() {
                     var id = $('#editId').val();
                     var formData = $('#editSiswaForm').serialize();
@@ -361,11 +282,13 @@
                             });
                         },
                         error: function(xhr) {
-                            Swal.fire('Error', 'Error updating siswa.', 'error');
+                            console.log(xhr.responseText);
+                            Swal.fire('Error', xhr.responseText, 'error');
                         }
                     });
                 });
 
+                // Hapus Siswa
                 $(document).on('click', '.deleteSiswa', function() {
                     var id = $(this).data('id');
                     Swal.fire({
