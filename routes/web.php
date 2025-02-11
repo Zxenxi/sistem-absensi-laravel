@@ -22,6 +22,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('index');
     Route::get('/index', [AdminController::class, 'index'])->name('dashboard.index'); // for admin management user data
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard'); // for admin management user data
+
 });
 
 require __DIR__.'/auth.php';
