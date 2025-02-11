@@ -38,10 +38,10 @@ class Kelas extends Model
     ];
 
     // Relasi ke model Siswa
-    public function siswa()
-    {
-        return $this->hasMany(Siswa::class);
-    }
+    // public function siswa()
+    // {
+    //     return $this->hasMany(Siswa::class);
+    // }
     public function user()
     {
         return $this->belongsTo(User::class);

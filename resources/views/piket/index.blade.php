@@ -42,7 +42,7 @@
         </div>
 
         <!-- Modal Tambah/Edit Jadwal -->
-        <div id="scheduleModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div id="scheduleModal" class="fixed z-20 inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
             <div class="bg-white rounded-lg shadow-lg w-96 p-6">
                 <h2 id="modalTitle" class="text-xl font-bold mb-4">Tambah Jadwal Piket</h2>
                 <form id="scheduleForm">

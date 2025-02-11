@@ -5,66 +5,127 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Kelas;
-use App\Models\Siswa;
-use App\Models\Guru;
 use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // Buat user untuk siswa, admin, dan guru
-        $siswaUser = User::create([
-            'name' => 'saya siswa',
-            'email' => 'falfatoni@gmail.com',
-            'password' => Hash::make('toniman'),
-            // role default 'siswa'
+        // --- Membuat Data Kelas ---
+        // Kelas X (2 jurusan)
+        $kelasXFarmasi = Kelas::create([
+            'kelas'       => 'X',
+            'jurusan'     => 'Farmasi',
+            'tahun_ajaran'=> '2023/2024',
+        ]);
+        $kelasXTJKT = Kelas::create([
+            'kelas'       => 'X',
+            'jurusan'     => 'TJKT',
+            'tahun_ajaran'=> '2023/2024',
         ]);
 
-        $adminUser = User::create([
-            'name' => 'saya admin',
-            'email' => 'admin@gmail.com',
-            'role' => 'admin',
-            'password' => Hash::make('toniman'),
+        // Kelas XI (5 jurusan)
+        $kelasXIFarmasi = Kelas::create([
+            'kelas'       => 'XI',
+            'jurusan'     => 'Farmasi',
+            'tahun_ajaran'=> '2023/2024',
+        ]);
+        $kelasXITJKT = Kelas::create([
+            'kelas'       => 'XI',
+            'jurusan'     => 'TJKT',
+            'tahun_ajaran'=> '2023/2024',
+        ]);
+        $kelasXIPemasaran = Kelas::create([
+            'kelas'       => 'XI',
+            'jurusan'     => 'Pemasaran',
+            'tahun_ajaran'=> '2023/2024',
+        ]);
+        $kelasXIAkuntansi = Kelas::create([
+            'kelas'       => 'XI',
+            'jurusan'     => 'Akuntansi',
+            'tahun_ajaran'=> '2023/2024',
+        ]);
+        $kelasXIPerkantoran = Kelas::create([
+            'kelas'       => 'XI',
+            'jurusan'     => 'Perkantoran',
+            'tahun_ajaran'=> '2023/2024',
+        ]);
+
+        // Kelas XII (5 jurusan)
+        $kelasXIIFarmasi = Kelas::create([
+            'kelas'       => 'XII',
+            'jurusan'     => 'Farmasi',
+            'tahun_ajaran'=> '2023/2024',
+        ]);
+        $kelasXIITJKT = Kelas::create([
+            'kelas'       => 'XII',
+            'jurusan'     => 'TJKT',
+            'tahun_ajaran'=> '2023/2024',
+        ]);
+        $kelasXIIPemasaran = Kelas::create([
+            'kelas'       => 'XII',
+            'jurusan'     => 'Pemasaran',
+            'tahun_ajaran'=> '2023/2024',
+        ]);
+        $kelasXIIAkuntansi = Kelas::create([
+            'kelas'       => 'XII',
+            'jurusan'     => 'Akuntansi',
+            'tahun_ajaran'=> '2023/2024',
+        ]);
+        $kelasXIIPerkantoran = Kelas::create([
+            'kelas'       => 'XII',
+            'jurusan'     => 'Perkantoran',
+            'tahun_ajaran'=> '2023/2024',
+        ]);
+
+        // Kumpulan ID kelas untuk penugasan siswa secara acak
+        $kelasIds = [
+            $kelasXFarmasi->id,
+            $kelasXTJKT->id,
+            $kelasXIFarmasi->id,
+            $kelasXITJKT->id,
+            $kelasXIPemasaran->id,
+            $kelasXIAkuntansi->id,
+            $kelasXIPerkantoran->id,
+            $kelasXIIFarmasi->id,
+            $kelasXIITJKT->id,
+            $kelasXIIPemasaran->id,
+            $kelasXIIAkuntansi->id,
+            $kelasXIIPerkantoran->id,
+        ];
+
+        // --- Membuat Data User ---
+        // 1. Admin
+        User::create([
+            'name'              => 'Admin User',
+            'email'             => 'admin@example.com',
+            'role'              => 'admin',
+            'password'          => Hash::make('password'),
             'email_verified_at' => now(),
         ]);
 
-        $guruUser = User::create([
-            'name' => 'saya guru mase',
-            'email' => 'guru@gmail.com',
-            'role' => 'guru',
-            'password' => Hash::make('toniman'),
-            'email_verified_at' => now(),
+        // Panggil GuruSeeder untuk membuat data guru sesuai daftar
+        $this->call([
+            GuruSeeder::class,
         ]);
 
-        // Buat record kelas (contoh)
-        $kelas1 = Kelas::create([
-            'kelas' => 'x',
-            'jurusan' => 'TJKT',
-            'tahun_ajaran' => '2023/2024'
+        // Buat 20 Siswa dengan NISN berurutan (misal, dari 1000000001 hingga 1000000020)
+        for ($i = 1; $i <= 20; $i++) {
+            User::create([
+                'name'              => 'Siswa ' . $i,
+                'email'             => 'siswa' . $i . '@example.com',
+                'role'              => 'siswa',
+                'password'          => Hash::make('password'),
+                'kelas_id'          => $kelasIds[array_rand($kelasIds)],
+                'nisn'              => (string)(1000000000 + $i),
+                'email_verified_at' => now(),
+            ]);
+        }
+
+        // Panggil seeder absensi untuk siswa (jika AttendanceSeeder untuk siswa sudah ada)
+        $this->call([
+            AttendanceSeeder::class, // pastikan Anda memiliki seeder ini untuk absensi siswa
+            GuruSeeder::class,
         ]);
-
-        // Jika Anda memiliki seeder Kelas tersendiri, pastikan setidaknya ada satu record kelas.
-
-        // Buat record siswa untuk user yang memiliki role siswa
-        Siswa::create([
-            'nisn' => '1234567890', // contoh NISN
-            'nama' => $siswaUser->name,
-            'kelas_id' => $kelas1->id,
-            'user_id' => $siswaUser->id,
-        ]);
-
-        // Buat record guru untuk user yang memiliki role guru
-        Guru::create([
-            'nama' => $guruUser->name,
-            'user_id' => $guruUser->id,
-            // Jika ada kolom lain seperti foto, bisa diisi juga
-        ]);
-
-        // Jika Anda ingin menambahkan lebih banyak siswa/guru yang tidak terhubung dengan user,
-        // Anda bisa panggil seeder lain atau membuat record tambahan di sini.
     }
 }

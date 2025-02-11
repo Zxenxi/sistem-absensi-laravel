@@ -7,11 +7,10 @@ use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Cache;
 
 class AttendanceController extends Controller
 {
+
     public function index(Request $request)
     {
         $attendances = Attendance::with(['siswa', 'guru'])->orderBy('waktu', 'desc')->get();
@@ -21,11 +20,14 @@ class AttendanceController extends Controller
         return view('attendances.index');
     }
     
+
     public function managements() {
         $attendances = Attendance::with(['siswa', 'guru'])->orderBy('waktu', 'desc')->get();
         return view('attendances.attendance', compact('attendances'));
     }
     
+    
+
     public function store(Request $request)
     {
         $request->validate([
@@ -59,28 +61,7 @@ class AttendanceController extends Controller
 
         $now   = Carbon::now('Asia/Jakarta');
         $today = $now->toDateString();
-
-        // Cek apakah hari ini merupakan hari libur (weekend atau libur nasional)
-        $year = $now->year;
-        $cacheKey = "public_holidays_{$year}_ID";
-        $holidayDates = Cache::remember($cacheKey, now()->addDay(), function () use ($year) {
-            $response = Http::get("https://date.nager.at/api/v3/PublicHolidays/{$year}/ID");
-            if ($response->successful()) {
-                // Mengambil semua tanggal libur dari API
-                return collect($response->json())->pluck('date')->toArray();
-            }
-            return [];
-        });
-
-        if ($now->isWeekend() || in_array($today, $holidayDates)) {
-            return response()->json([
-                'message' => 'Absensi tidak bisa dilakukan karena libur'
-            ], 403);
-        }
-
-        // Jika absen setelah jam 07:00 WIB, otomatis statusnya menjadi 'Terlambat'
-        $attendanceDeadline = Carbon::createFromTime(7, 0, 0, 'Asia/Jakarta');
-        $status = $now->gt($attendanceDeadline) ? 'Terlambat' : 'Hadir';
+        $status = 'Hadir';
 
         if ($request->role === 'siswa') {
             $user = Auth::user();
@@ -169,19 +150,24 @@ class AttendanceController extends Controller
                     ->whereDate('schedule_date', $today)
                     ->first();
         
+        // Jika jadwal piket ditemukan
         if ($piket) {
+            // Jika jadwal memiliki waktu mulai dan waktu selesai
             if ($piket->start_time && $piket->end_time) {
                 $start = Carbon::parse($piket->start_time, 'Asia/Jakarta');
                 $end   = Carbon::parse($piket->end_time, 'Asia/Jakarta');
+                // Jika waktu saat ini berada dalam rentang jadwal, tampilkan dashboard absensi
                 if ($now->between($start, $end)) {
                     $attendances = Attendance::with(['siswa', 'guru'])
                         ->orderBy('waktu', 'desc')
                         ->get();
                     return view('attendances.dashboard', compact('attendances'));
                 } else {
+                    // Jika tidak, tampilkan form absensi biasa
                     return view('attendances.index');
                 }
             } else {
+                // Jika waktu tidak diisi, asumsikan guru bertugas penuh hari ini
                 $attendances = Attendance::with(['siswa', 'guru'])
                     ->orderBy('waktu', 'desc')
                     ->get();
@@ -189,8 +175,10 @@ class AttendanceController extends Controller
             }
         }
         
+        // Jika tidak ada jadwal piket, tampilkan form absensi biasa
         return view('attendances.index');
     }
+    
 
     protected function saveFoto($fotoBase64)
     {

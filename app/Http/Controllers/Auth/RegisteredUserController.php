@@ -66,9 +66,9 @@ class RegisteredUserController extends Controller
 
         // Redirect: admin ke dashboard; guru dan siswa ke halaman absensi.
         if ($user->role === 'admin') {
-            return redirect('/dashboard');
+            return redirect('/index');
         } elseif (in_array($user->role, ['guru', 'siswa'])) {
-            return redirect()->route('absensi.form'); // Pastikan route 'absensi.form' didefinisikan untuk tampilan absensi
+            return redirect()->route('/absensi'); // Pastikan route 'absensi.form' didefinisikan untuk tampilan absensi
         } else {
             return redirect('/absensi');
         }

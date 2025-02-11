@@ -223,7 +223,7 @@
     @keydown.escape="closeSideMenu">
     <div class="py-4 text-gray-500 dark:text-gray-400">
         <a class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200" href="#">
-            Windmill
+            SIA Penabur
         </a>
         <ul class="mt-6">
             <li class="relative px-6 py-3" {{ isActive('/') }}>
@@ -379,7 +379,7 @@
     </div>
 </aside>
 <div class="flex flex-col flex-1 w-full">
-    <header class="z-2 py-4 bg-white shadow-md dark:bg-gray-800">
+    <header class="z-20 py-4 bg-white shadow-md dark:bg-gray-800">
         <div
             class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300">
             <!-- Mobile hamburger -->
@@ -427,7 +427,7 @@
                     </button>
                 </li>
                 <!-- Notifications menu -->
-                <li class="relative">
+                <li class="relative z-50">
                     <button class="relative align-middle rounded-md focus:outline-none focus:shadow-outline-purple"
                         @click="toggleNotificationsMenu" @keydown.escape="closeNotificationsMenu"
                         aria-label="Notifications" aria-haspopup="true">

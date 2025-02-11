@@ -8,26 +8,10 @@ use App\Http\Controllers\Kelas\kelascontroller;
 use App\Http\Controllers\Siswa\SiswaController;
 use App\Http\Controllers\Attendance\AttendanceController;
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
 
-// use App\Http\Controllers\AttendanceController;
-// use App\Http\Controllers\AdminController;
-
-// Route::middleware(['auth'])->group(function () {
-//     // Dashboard Admin
-//     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-    
-//     // Absensi Guru (hanya absen diri)
-//     Route::get('/attendance', [AttendanceController::class, 'teacherIndex'])->name('attendance.index');
-//     Route::post('/attendance/mark', [AttendanceController::class, 'teacherMark'])->name('attendance.mark');
-
-//     // Rekaman Absensi Siswa (atau absensi siswa mandiri jika diizinkan)
-//     Route::get('/my-attendance', [AttendanceController::class, 'myAttendance'])->name('attendance.myAttendance');
-// });
 
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard',function(){return view('dashboard');})->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -35,17 +19,16 @@ Route::middleware('auth')->group(function () {
 
 
 Route::middleware('auth')->group(function () {
-    Route::get('/', function () {
-        return view('dashboard.content.index');
-    })->name('index');
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard'); //for admin management user data
+    Route::get('/', [AdminController::class, 'index'])->name('index');
+    Route::get('/index', [AdminController::class, 'index'])->name('dashboard.index'); // for admin management user data
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard'); // for admin management user data
 });
 
 require __DIR__.'/auth.php';
 
-Route::get('/index',function(){
-    return view('dashboard.content.index');
-})->name('index');
+// Route::get('/index',function(){
+//     return view('dashboard.content.index');
+// })->name('index');
 Route::get('/forms',function(){
     return view('dashboard.content.forms');
 })->name('forms');
@@ -64,12 +47,6 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/siswa/index', [SiswaController::class, 'siswa'])->name('siswa.siswa'); // Menampilkan halaman siswa
     Route::resource('siswa', SiswaController::class);
-//     Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa.index'); // Menampilkan halaman siswa
-//     Route::get('/siswa/create', [SiswaController::class, 'create'])->name('siswa.create'); // Menampilkan form tambah siswa
-//     Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store'); // Menyimpan siswa baru
-//     Route::get('/siswa/{siswa}/edit', [SiswaController::class, 'edit'])->name('siswa.edit'); // Menampilkan form edit siswa
-//     Route::put('/siswa/{siswa}', [SiswaController::class, 'update'])->name('siswa.update'); // Update siswa
-//     Route::delete('/siswa/{siswa}', [SiswaController::class, 'destroy'])->name('siswa.destroy'); // Hapus siswa
 });
 
 // routing guru
@@ -85,7 +62,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
 Route::get('/absensi', [AttendanceController::class, 'index'])->name('attendances.index');
 Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.store');
-Route::get('/absensi', [AttendanceController::class, 'index'])->name('absensi.form');
+
 });
 
 use App\Http\Controllers\Piket\PiketController;
@@ -108,7 +85,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/attendance/{attendance}', [AttendanceController::class, 'show']);
     Route::put('/attendance/{attendance}', [AttendanceController::class, 'update']);
     Route::delete('/attendance/{attendance}', [AttendanceController::class, 'destroy']);
-
+    // Route::get('/absensi', [AttendanceController::class, 'index'])->name('absensi.form');
     // Dashboard absensi untuk guru petugas piket
     Route::get('/dashboard-absensi', [AttendanceController::class, 'dashboard'])->name('attendance.dashboard');
     Route::get('/dashboard-absen', [AttendanceController::class, 'managements'])->name('attendance.attendance');

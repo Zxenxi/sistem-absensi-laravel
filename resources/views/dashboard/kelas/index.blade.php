@@ -33,7 +33,7 @@
 
         <!-- Modal Tambah/Edit Kelas -->
         <div id="modalKelas"
-            class="fixed inset-0 flex items-center justify-center hidden z-50 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity">
+            class="fixed inset-0 flex items-center justify-center hidden z-20 bg-black bg-opacity-50 backdrop-blur-sm transition-opacity">
             <div class="bg-white dark:bg-gray-800 rounded-lg max-w-md p-6 shadow-lg w-full max-w-xl">
                 <h2 id="modalKelasLabel" class="text-xl font-bold mb-4 text-gray-700 dark:text-gray-200">Tambah Kelas</h2>
                 <form id="formKelas" class="space-y-4">

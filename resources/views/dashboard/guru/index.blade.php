@@ -30,7 +30,7 @@
 
         <!-- Modal Tambah Guru -->
         <div id="modalAddGuru"
-            class="fixed inset-0 flex items-center justify-center hidden z-50 bg-black bg-opacity-50 backdrop-blur-sm">
+            class="fixed z-20 inset-0 flex items-center justify-center hidden z-50 bg-black bg-opacity-50 backdrop-blur-sm">
             <div class="bg-white dark:bg-gray-800 rounded-lg max-w-xl p-6 w-full">
                 <h2 class="text-xl font-bold mb-4">Tambah Guru</h2>
                 <form id="formAddGuru" class="space-y-4">

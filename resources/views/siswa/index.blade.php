@@ -48,7 +48,7 @@
         </div>
 
         <!-- MODAL: Tambah Siswa -->
-        <div id="addSiswaModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div id="addSiswaModal" class="z-20 fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden ">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg w-96 max-w-md p-6">
                 <div class="flex justify-between items-center border-b pb-2">
                     <h5 class="text-lg font-bold">Tambah Siswa</h5>

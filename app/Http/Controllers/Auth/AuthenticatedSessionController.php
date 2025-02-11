@@ -44,11 +44,11 @@ class AuthenticatedSessionController extends Controller
         // dd($user->role);
         
         if ($user->role === 'admin') {
-            return redirect()->to('/dashboard');
+            return redirect()->to('/index');
         } elseif (in_array($user->role, ['guru', 'siswa'])) {
             return redirect()->to('/absensi');
         } else {
-            return redirect()->to('/dashboard');
+            return redirect()->to('/index');
         }
         
     }
