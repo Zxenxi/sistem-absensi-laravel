@@ -18,15 +18,16 @@ class Attendance extends Model
         'foto_wajah',
     ];
 
-    // Relasi ke model guru
-    public function guru(){
-        return $this->belongsTo(\App\Models\User::class);
-    }
-    
-    // Relasi ke model siswa dengan mapping kolom siswa_id ke user_id pada tabel siswa
-    public function siswa(){
+    public function siswa()
+    {
         return $this->belongsTo(\App\Models\User::class, 'siswa_id');
     }
+    
+    public function guru()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'guru_id');
+    }
+    
     
     
 }
