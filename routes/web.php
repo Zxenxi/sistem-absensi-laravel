@@ -9,7 +9,6 @@ use App\Http\Controllers\Siswa\SiswaController;
 use App\Http\Controllers\Attendance\AttendanceController;
 
 
-
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard',function(){return view('dashboard');})->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -72,6 +71,7 @@ Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.s
 });
 
 use App\Http\Controllers\Piket\PiketController;
+use App\Http\Controllers\Report\ReportController;
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('piket', PiketController::class);
@@ -95,8 +95,17 @@ Route::middleware(['auth'])->group(function () {
     // Dashboard absensi untuk guru petugas piket
     Route::get('/dashboard-absensi', [AttendanceController::class, 'dashboard'])->name('attendance.dashboard');
     Route::get('/dashboard-absen', [AttendanceController::class, 'managements'])->name('attendance.attendance');
-});
 
+    // Route untuk export data presensi
+
+
+
+    Route::get('/export', [ReportController::class, 'showExportForm'])->name('export.form');
+    Route::get('/export/report', [ReportController::class, 'exportReport'])->name('export.report');
+    
+    
+    
+});
 
 
 
