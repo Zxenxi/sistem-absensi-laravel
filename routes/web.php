@@ -7,7 +7,9 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Kelas\kelascontroller;
 use App\Http\Controllers\Siswa\SiswaController;
 use App\Http\Controllers\Attendance\AttendanceController;
-
+use App\Http\Controllers\Piket\PiketController;
+use App\Http\Controllers\Report\ReportController;
+// use App\Http\Controllers\ReportController;
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard',function(){return view('dashboard');})->name('dashboard');
@@ -70,8 +72,7 @@ Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.s
 
 });
 
-use App\Http\Controllers\Piket\PiketController;
-use App\Http\Controllers\Report\ReportController;
+
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('piket', PiketController::class);
@@ -99,9 +100,14 @@ Route::middleware(['auth'])->group(function () {
     // Route untuk export data presensi
 
 
-
-    Route::get('/export', [ReportController::class, 'showExportForm'])->name('export.form');
-    Route::get('/export/report', [ReportController::class, 'exportReport'])->name('export.report');
+    Route::get('/export',[ReportController::class, 'index'])->name('index');
+    Route::get('/export/siswa/excel', [ReportController::class, 'exportSiswaExcel'])->name('export.siswa.excel');
+    Route::get('/export/siswa/pdf', [ReportController::class, 'exportSiswaPDF'])->name('export.siswa.pdf');
+    Route::get('/export/guru/excel', [ReportController::class, 'exportGuruExcel'])->name('export.guru.excel');
+    Route::get('/export/guru/pdf', [ReportController::class, 'exportGuruPDF'])->name('export.guru.pdf');
+    
+    // Route::get('/export', [ReportController::class, 'showExportForm'])->name('export.form');
+    // Route::get('/export/report', [ReportController::class, 'exportReport'])->name('export.report');
     
     
     

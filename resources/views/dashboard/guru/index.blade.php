@@ -1,8 +1,9 @@
 @extends('layouts.dashboard')
 
 @section('content')
-    <div class="container grid px-6 mx-auto">
-        <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-white">Manajemen Data Guru</h2>
+    <main class="container mx-auto px-4 py-8">
+        <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-white">
+            Manajemen Data Guru</h2>
         <!-- Tombol Tambah Guru -->
         <div class="flex justify-between mb-8">
             <button onclick="showModal('modalAddGuru')"
@@ -88,7 +89,7 @@
                 </form>
             </div>
         </div>
-    </div>
+    </main>
 
     <!-- Sertakan SweetAlert2 CDN -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -83,7 +83,7 @@
                             Status</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white dark:bg-gray-800">
+                <tbody class="bg-white dark:bg-gray-800 dark:text-gray-200">
                     <!-- Data dimuat lewat AJAX -->
                 </tbody>
             </table>
@@ -112,7 +112,7 @@
                             Lokasi</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white dark:bg-gray-800">
+                <tbody class="bg-white dark:bg-gray-800 dark:text-gray-200">
                     <!-- Data dimuat lewat AJAX -->
                 </tbody>
             </table>

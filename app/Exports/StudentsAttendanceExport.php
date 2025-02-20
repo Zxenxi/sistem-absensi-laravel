@@ -5,37 +5,16 @@ namespace App\Exports;
 use App\Models\Attendance;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\ToModel;
-use Maatwebsite\Excel\Concerns\Exportable;
+
 class StudentsAttendanceExport implements FromCollection, WithHeadings
 {
-    
-    protected $academicYear;
-    protected $class;
-    protected $major;
-
-    public function __construct($academicYear, $class = null, $major = null)
-    {
-        $this->academicYear = $academicYear;
-        $this->class        = $class;
-        $this->major        = $major;
-    }
-
     public function collection()
     {
-        $query = Attendance::whereNotNull('siswa_id')
-            ->whereHas('siswa.kelas', function($q) {
-                $q->where('tahun_ajaran', $this->academicYear);
-                if ($this->class) {
-                    $q->where('kelas', $this->class);
-                }
-                if ($this->major) {
-                    $q->where('jurusan', $this->major);
-                }
-            })->with('siswa.kelas');
+        $attendances = Attendance::whereNotNull('siswa_id')
+            ->with('siswa.kelas')
+            ->get();
 
-        $attendances = $query->get();
-
+        // Map the data to the desired columns
         $data = $attendances->map(function($attendance, $index) {
             return [
                 'No'            => $index + 1,

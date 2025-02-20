@@ -10,8 +10,9 @@ class TeachersAttendanceExport implements FromCollection, WithHeadings
 {
     public function collection()
     {
-        $query = Attendance::whereNotNull('guru_id')->with('guru');
-        $attendances = $query->get();
+        $attendances = Attendance::whereNotNull('guru_id')
+            ->with('guru')
+            ->get();
 
         $data = $attendances->map(function($attendance, $index) {
             return [
