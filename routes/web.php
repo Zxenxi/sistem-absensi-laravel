@@ -99,18 +99,13 @@ Route::middleware(['auth'])->group(function () {
 
     // Route untuk export data presensi
 
-
     Route::get('/export',[ReportController::class, 'index'])->name('index');
     Route::get('/export/siswa/excel', [ReportController::class, 'exportSiswaExcel'])->name('export.siswa.excel');
     Route::get('/export/siswa/pdf', [ReportController::class, 'exportSiswaPDF'])->name('export.siswa.pdf');
     Route::get('/export/guru/excel', [ReportController::class, 'exportGuruExcel'])->name('export.guru.excel');
     Route::get('/export/guru/pdf', [ReportController::class, 'exportGuruPDF'])->name('export.guru.pdf');
     
-    // Route::get('/export', [ReportController::class, 'showExportForm'])->name('export.form');
-    // Route::get('/export/report', [ReportController::class, 'exportReport'])->name('export.report');
-    
-    
-    
+    Route::get('/riwayat-presensi', [AttendanceController::class, 'history'])->name('attendance.history');
 });
 
 

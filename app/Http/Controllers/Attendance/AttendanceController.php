@@ -207,4 +207,26 @@ class AttendanceController extends Controller
         }
         return null;
     }
+    public function history(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->role === 'siswa') {
+            $attendances = Attendance::where('siswa_id', $user->id)
+                ->with(['siswa', 'guru'])
+                ->orderBy('waktu', 'desc')
+                ->get();
+        } elseif ($user->role === 'guru') {
+            $attendances = Attendance::where('guru_id', $user->id)
+                ->with(['siswa', 'guru'])
+                ->orderBy('waktu', 'desc')
+                ->get();
+        } else {
+            // Jika selain siswa/guru, misalnya admin: bisa tampilkan semua
+            $attendances = Attendance::with(['siswa', 'guru'])
+                ->orderBy('waktu', 'desc')
+                ->get();
+        }
+        return view('attendances.history', compact('attendances'));
+    }
+
 }

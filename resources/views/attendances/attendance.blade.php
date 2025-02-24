@@ -9,7 +9,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Dashboard Absensi Petugas Piket</title>
         <!-- Tailwind CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet" />
+        {{-- <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.3.2/dist/tailwind.min.css" rel="stylesheet" /> --}}
         <!-- Axios -->
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <!-- jQuery -->
@@ -100,7 +100,7 @@
                                 <td class="px-4 py-2" data-label="Aksi">
                                     <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded mr-2"
                                         onclick="editAttendance({{ $attendance->id }})">Edit</button>
-                                    <button class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
+                                    <button class="bg-red-600 hover:bg-red-500 text-white px-2 py-1 rounded"
                                         onclick="deleteAttendance({{ $attendance->id }})">Hapus</button>
                                 </td>
                             </tr>
@@ -188,7 +188,7 @@
               <td class="px-4 py-2" data-label="Status">${a.status}</td>
               <td class="px-4 py-2" data-label="Aksi">
                 <button class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded mr-2" onclick="editAttendance(${a.id})">Edit</button>
-                <button class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded" onclick="deleteAttendance(${a.id})">Hapus</button>
+                <button class="bg-red-600  hover:bg-red-500   text-white px-2 py-1 rounded" onclick="deleteAttendance(${a.id})">Hapus</button>
               </td>
             </tr>`;
                         });
