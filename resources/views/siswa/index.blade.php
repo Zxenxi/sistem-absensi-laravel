@@ -179,9 +179,9 @@
                         success: function(response) {
                             var siswa = response.siswa;
                             var html = '';
-                            siswa.forEach(function(s) {
+                            siswa.forEach(function(s, index) {
                                 html += '<tr class="border-b">';
-                                html += '<td class="px-4 py-2">' + s.id + '</td>';
+                                html += '<td class="px-4 py-2">' + (index + 1) + '</td>';
                                 html += '<td class="px-4 py-2">' + s.nisn + '</td>';
                                 html += '<td class="px-4 py-2">' + s.name + '</td>';
                                 html += '<td class="px-4 py-2">' + s.email + '</td>';

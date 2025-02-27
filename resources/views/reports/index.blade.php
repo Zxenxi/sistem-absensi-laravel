@@ -47,7 +47,7 @@
                             Export PDF
                         </a>
                         <a id="exportSiswaExcel" href="#"
-                            class="flex-1 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white py-2 px-4 rounded text-center">
+                            class="flex-1 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 px-4 rounded text-center">
                             Export Excel
                         </a>
                     </div>
@@ -63,7 +63,7 @@
                             Export PDF
                         </a>
                         <a id="exportGuruExcel" href="#"
-                            class="flex-1 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white py-2 px-4 rounded text-center">
+                            class="flex-1 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white py-2 px-4 rounded text-center">
                             Export Excel
                         </a>
                     </div>

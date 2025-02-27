@@ -33,7 +33,7 @@
                                 <input id="email" type="email" name="email" value="{{ old('email') }}" required
                                     autofocus
                                     class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
-                                    placeholder="Jane Doe" />
+                                    placeholder="Masukan Email Anda" />
                                 @error('email')
                                     <span class="text-sm text-red-600">{{ $message }}</span>
                                 @enderror
@@ -42,7 +42,7 @@
                                 <span class="text-gray-700 dark:text-gray-400">Password</span>
                                 <input id="password" type="password" name="password" required
                                     class="block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
-                                    placeholder="***************" />
+                                    placeholder="Masukan Password Anda" />
                                 @error('password')
                                     <span class="text-sm text-red-600">{{ $message }}</span>
                                 @enderror
@@ -66,12 +66,12 @@
                             </button>
                         </form>
 
-                        <p class="mt-4 text-center">
+                        {{-- <p class="mt-4 text-center">
                             <a href="{{ route('register') }}"
                                 class="text-sm text-purple-600 dark:text-purple-400 hover:underline">
                                 Create account
                             </a>
-                        </p>
+                        </p> --}}
                     </div>
                 </div>
             </div>

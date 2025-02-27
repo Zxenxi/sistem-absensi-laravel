@@ -74,11 +74,9 @@ Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.s
 
 
 
-Route::middleware(['auth'])->group(function () {
-    Route::resource('piket', PiketController::class);
-});
-
-
+// Route::middleware(['auth'])->group(function () {
+//     Route::resource('piket', PiketController::class);
+// });
 
 
 Route::middleware(['auth'])->group(function () {
@@ -112,18 +110,18 @@ Route::middleware(['auth'])->group(function () {
 
 // routing view view
 
-Route::get('/charts',function(){
-return view('dashboard.charts');
-})->name('charts');
-Route::get('/buttons',function(){
-return view('dashboard.buttons');
-})->name('buttons');
-Route::get('/modals',function(){
-return view('dashboard.modals');
-})->name('modals');
-Route::get('/tables',function(){
-return view('dashboard.tables');
-})->name('tables');
-Route::get('/cards',function(){
-return view('dashboard.cards');
-})->name('cards');
+// Route::get('/charts',function(){
+// return view('dashboard.charts');
+// })->name('charts');
+// Route::get('/buttons',function(){
+// return view('dashboard.buttons');
+// })->name('buttons');
+// Route::get('/modals',function(){
+// return view('dashboard.modals');
+// })->name('modals');
+// Route::get('/tables',function(){
+// return view('dashboard.tables');
+// })->name('tables');
+// Route::get('/cards',function(){
+// return view('dashboard.cards');
+// })->name('cards');
