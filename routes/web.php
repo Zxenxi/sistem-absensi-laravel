@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Guru\GuruController;
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Kelas\kelascontroller;
+use App\Http\Controllers\Kelas\KelasController;
 use App\Http\Controllers\Siswa\SiswaController;
 use App\Http\Controllers\Attendance\AttendanceController;
 use App\Http\Controllers\Piket\PiketController;
