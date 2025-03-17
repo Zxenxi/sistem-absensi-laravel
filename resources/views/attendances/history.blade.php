@@ -8,42 +8,34 @@
             <p class="mt-2 text-gray-600 dark:text-gray-300">
                 Selamat datang di halaman riwayat presensi. Di sini Anda dapat melihat catatan kehadiran dengan rinci.
                 Gunakan filter di bawah ini untuk menyaring data berdasarkan hari, bulan, atau semester. Jika tidak ada
-                filter,
-                seluruh data akan ditampilkan.
+                filter, seluruh data akan ditampilkan.
             </p>
         </div>
 
-        <!-- Filter Harian, Bulanan & Semester -->
-        <div class="mb-4 flex flex-col md:flex-row md:items-center md:space-x-4 space-y-2 md:space-y-0">
+        <!-- Filter Section (Mobile-First Layout) -->
+        <div class="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             <!-- Filter Harian -->
-            <div class="flex items-center">
-                <label for="date_filter" class="mr-2 text-gray-700 dark:text-gray-300">Filter Harian:</label>
+            <div>
+                <label for="date_filter" class="block text-gray-700 dark:text-gray-300 mb-1">Filter Harian:</label>
                 <input type="text" id="date_filter"
-                    class="w-48 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
                     placeholder="Pilih tanggal">
             </div>
             <!-- Filter Bulanan -->
-            <div class="flex items-center">
-                <label for="month_filter" class="mr-2 text-gray-700 dark:text-gray-300">Filter Bulanan:</label>
+            <div>
+                <label for="month_filter" class="block text-gray-700 dark:text-gray-300 mb-1">Filter Bulanan:</label>
                 <input type="text" id="month_filter"
-                    class="w-48 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
                     placeholder="Pilih bulan">
             </div>
-            <!-- Filter Semester -->
-            {{-- <div class="flex items-center">
-                <label for="semester_filter" class="mr-2 text-gray-700 dark:text-gray-300">Filter Semester:</label>
-                <select id="semester_filter"
-                    class="w-48 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100">
-                    <option value="">Pilih Semester</option>
-                    <option value="1">Semester 1</option>
-                    <option value="2">Semester 2</option>
-                </select>
-            </div> --}}
-            <!-- Tombol Clear -->
-            <button id="clear-filters"
-                class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md whitespace-nowrap">
-                Clear Filters
-            </button>
+            <div class="mb-4">
+                <label for="month_filter" class="block text-gray-700 dark:text-gray-300 mb-1">Hapus Filter:</label>
+
+                <button id="clear-filters"
+                    class="w-full sm:w-auto sm:px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md">
+                    Clear Filters
+                </button>
+            </div>
         </div>
 
         <!-- Tabel Riwayat Presensi -->
@@ -93,7 +85,7 @@
                 }
             });
 
-            // Inisialisasi Flatpickr untuk filter bulanan dengan plugin MonthSelect
+            // Inisialisasi Flatpickr untuk filter bulanan menggunakan plugin MonthSelect
             var fpMonth = $('#month_filter').flatpickr({
                 plugins: [
                     new monthSelectPlugin({
@@ -107,12 +99,12 @@
                 }
             });
 
-            // Reload DataTables ketika filter semester berubah
+            // (Jika filter semester diaktifkan, tambahkan event change)
             $('#semester_filter').on('change', function() {
                 table.ajax.reload();
             });
 
-            // Tombol untuk menghapus semua filter
+            // Tombol Clear Filters
             $('#clear-filters').on('click', function() {
                 fpDaily.clear();
                 fpMonth.clear();
@@ -120,16 +112,16 @@
                 table.ajax.reload();
             });
 
-            // Inisialisasi DataTables dengan parameter tambahan untuk filter
+            // Inisialisasi DataTables dengan parameter filter tambahan
             var table = $('#attendance-table').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
                     url: '{{ route('attendance.history') }}',
                     data: function(d) {
-                        d.date = $('#date_filter').val(); // Filter harian
-                        d.month = $('#month_filter').val(); // Filter bulanan
-                        d.semester = $('#semester_filter').val(); // Filter semester
+                        d.date = $('#date_filter').val();
+                        d.month = $('#month_filter').val();
+                        d.semester = $('#semester_filter').val();
                     }
                 },
                 columns: [{

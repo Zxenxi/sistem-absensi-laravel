@@ -18,27 +18,40 @@ class AdminController extends Controller
     {
         $totalSiswa = User::where('role', 'siswa')->count();
         $totalGuru  = User::where('role', 'guru')->count();
-
+    
         $todayAttendance = Attendance::whereDate('waktu', Carbon::today())->count();
         $todayPiket = PiketSchedule::where('schedule_date', Carbon::today()->toDateString())->count();
-
-        // Hitung distribusi status absensi hari ini untuk chart
+    
+        // Distribusi absensi hari ini (Pie Chart)
         $attendanceDistribution = Attendance::select('status', DB::raw('count(*) as count'))
             ->whereDate('waktu', Carbon::today())
             ->groupBy('status')
             ->pluck('count', 'status');
-
         $chartLabels = $attendanceDistribution->keys();
         $chartData   = $attendanceDistribution->values();
-
-        // Hitung persentase kehadiran (pastikan totalSiswa tidak nol)
+    
+        // Persentase kehadiran
         $attendancePercentage = $totalSiswa > 0 ? ($todayAttendance / $totalSiswa) * 100 : 0;
 
-        // Contoh perhitungan siswa terlambat, misalnya status 'terlambat'
+
+    
+        // Siswa terlambat (misal: status 'terlambat')
         $lateStudents = Attendance::where('status', 'terlambat')
             ->whereDate('waktu', Carbon::today())
             ->count();
-
+    
+        // Hitung tren kehadiran mingguan (Line Chart)
+        $startOfWeek = Carbon::now()->startOfWeek();
+        $endOfWeek = Carbon::now()->endOfWeek();
+        $trendAttendances = Attendance::select(DB::raw('DATE(waktu) as date'), DB::raw('count(*) as count'))
+            ->whereBetween('waktu', [$startOfWeek, $endOfWeek])
+            ->groupBy(DB::raw('DATE(waktu)'))
+            ->orderBy(DB::raw('DATE(waktu)'))
+            ->get();
+    
+        $trendLabels = $trendAttendances->pluck('date')->toArray();
+        $trendData = $trendAttendances->pluck('count')->toArray();
+    
         return view('dashboard.content.index', compact(
             'totalSiswa',
             'totalGuru',
@@ -47,7 +60,9 @@ class AdminController extends Controller
             'chartLabels',
             'chartData',
             'attendancePercentage',
-            'lateStudents'
+            'lateStudents',
+            'trendLabels',
+            'trendData'
         ));
     }
     // public function index()
