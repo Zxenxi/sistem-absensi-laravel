@@ -30,7 +30,7 @@
                     placeholder="Pilih bulan">
             </div>
             <!-- Filter Semester -->
-            <div class="flex items-center">
+            {{-- <div class="flex items-center">
                 <label for="semester_filter" class="mr-2 text-gray-700 dark:text-gray-300">Filter Semester:</label>
                 <select id="semester_filter"
                     class="w-48 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100">
@@ -38,7 +38,7 @@
                     <option value="1">Semester 1</option>
                     <option value="2">Semester 2</option>
                 </select>
-            </div>
+            </div> --}}
             <!-- Tombol Clear -->
             <button id="clear-filters"
                 class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md whitespace-nowrap">
