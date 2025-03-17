@@ -31,15 +31,51 @@ class AdminController extends Controller
         $chartLabels = $attendanceDistribution->keys();
         $chartData   = $attendanceDistribution->values();
 
+        // Hitung persentase kehadiran (pastikan totalSiswa tidak nol)
+        $attendancePercentage = $totalSiswa > 0 ? ($todayAttendance / $totalSiswa) * 100 : 0;
+
+        // Contoh perhitungan siswa terlambat, misalnya status 'terlambat'
+        $lateStudents = Attendance::where('status', 'terlambat')
+            ->whereDate('waktu', Carbon::today())
+            ->count();
+
         return view('dashboard.content.index', compact(
             'totalSiswa',
             'totalGuru',
             'todayAttendance',
             'todayPiket',
             'chartLabels',
-            'chartData'
+            'chartData',
+            'attendancePercentage',
+            'lateStudents'
         ));
     }
+    // public function index()
+    // {
+    //     $totalSiswa = User::where('role', 'siswa')->count();
+    //     $totalGuru  = User::where('role', 'guru')->count();
+
+    //     $todayAttendance = Attendance::whereDate('waktu', Carbon::today())->count();
+    //     $todayPiket = PiketSchedule::where('schedule_date', Carbon::today()->toDateString())->count();
+
+    //     // Hitung distribusi status absensi hari ini untuk chart
+    //     $attendanceDistribution = Attendance::select('status', DB::raw('count(*) as count'))
+    //         ->whereDate('waktu', Carbon::today())
+    //         ->groupBy('status')
+    //         ->pluck('count', 'status');
+
+    //     $chartLabels = $attendanceDistribution->keys();
+    //     $chartData   = $attendanceDistribution->values();
+
+    //     return view('dashboard.content.index', compact(
+    //         'totalSiswa',
+    //         'totalGuru',
+    //         'todayAttendance',
+    //         'todayPiket',
+    //         'chartLabels',
+    //         'chartData'
+    //     ));
+    // }
 
     // Endpoint AJAX untuk DataTables absensi siswa
     public function getStudentAttendances(Request $request)
@@ -68,9 +104,9 @@ class AdminController extends Controller
                 if ($status == 'Hadir') {
                     $class = 'text-green-700 bg-green-100 dark:bg-green-700 dark:text-green-100';
                 } elseif ($status == 'Sakit') {
-                    $class = 'text-orange-700 bg-orange-100 dark:bg-orange-700 dark:text-orange-100';
+                    $class = 'text-orange-700 bg-orange-100 dark:bg-orange-700 dark:text-orange-700';
                 } elseif ($status == 'Izin') {
-                    $class = 'text-blue-700 bg-blue-100 dark:bg-blue-700 dark:text-blue-100';
+                    $class = 'text-green-700 bg-blue-100 dark:bg-blue-700 dark:text-blue-400';
                 } else {
                     $class = 'text-red-700 bg-red-100 dark:bg-red-700 dark:text-red-100';
                 }
@@ -120,9 +156,9 @@ class AdminController extends Controller
                 if ($status == 'Hadir') {
                     $class = 'text-green-700 bg-green-100 dark:bg-green-700 dark:text-green-100';
                 } elseif ($status == 'Sakit') {
-                    $class = 'text-orange-700 bg-orange-100 dark:bg-orange-700 dark:text-orange-100';
+                    $class = 'text-orange-700 bg-orange-100 dark:bg-orange-700 dark:text-orange-700';
                 } elseif ($status == 'Izin') {
-                    $class = 'text-blue-700 bg-blue-100 dark:bg-blue-700 dark:text-blue-100';
+                    $class = 'text-green-700 bg-blue-100 dark:bg-blue-700 dark:text-blue-400';
                 } else {
                     $class = 'text-red-700 bg-red-100 dark:bg-red-700 dark:text-red-100';
                 }

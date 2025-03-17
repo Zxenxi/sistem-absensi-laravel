@@ -1,4 +1,4 @@
-<script src="https://cdn.tailwindcss.com"></script>
+{{-- <script src="https://cdn.tailwindcss.com"></script> --}}
 @extends('layouts.dashboard')
 
 @section('content')
@@ -23,7 +23,7 @@
     <body class="bg-gray-100">
         <div class="min-h-screen flex items-center justify-center px-4 py-8">
             <div class="w-full max-w-md bg-white/30 backdrop-blur-lg rounded-lg shadow-xl p-8">
-                <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">Form Absensi</h1>
+                <h1 class="text-3xl font-bold text-center mb-8 text-gray-800 dark:text-white">Form Absensi</h1>
                 <form id="absensiForm" class="space-y-6">
                     <!-- Identitas Pengguna -->
                     <input type="hidden" name="role" value="{{ Auth::user()->role }}">
@@ -39,7 +39,7 @@
 
                     <!-- Bagian Kamera & Foto -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Ambil Foto</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-white">Ambil Foto</label>
                         <div class="relative border rounded-md overflow-hidden bg-white/20 backdrop-blur-sm">
                             <video id="video" class="w-full h-auto"></video>
                             <canvas id="canvas" class="hidden"></canvas>
@@ -53,7 +53,7 @@
 
                     <!-- Bagian Status Lokasi -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Status Lokasi</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-white">Status Lokasi</label>
                         <div id="locationContainer" class="flex items-center mt-1 space-x-2">
                             <svg id="locationSpinner" class="animate-spin h-5 w-5 text-blue-500"
                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -61,7 +61,8 @@
                                     stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                             </svg>
-                            <span id="locationStatus" class="text-xs text-gray-500">Mendapatkan lokasi...</span>
+                            <span id="locationStatus" class="text-xs text-gray-500 dark:text-white">Mendapatkan
+                                lokasi...</span>
                         </div>
                     </div>
 

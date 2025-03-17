@@ -38,4 +38,10 @@ class Kernel extends ConsoleKernel
 
         // You can also include your custom commands here.
     }
+    protected $routeMiddleware = [
+    // ...
+    'role' => \App\Http\Middleware\RoleMiddleware::class,
+    
+];
+
 }

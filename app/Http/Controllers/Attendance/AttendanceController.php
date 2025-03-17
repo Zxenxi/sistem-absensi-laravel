@@ -210,23 +210,78 @@ class AttendanceController extends Controller
     public function history(Request $request)
     {
         $user = Auth::user();
+    
+        // Bangun query berdasarkan peran user
         if ($user->role === 'siswa') {
             $attendances = Attendance::where('siswa_id', $user->id)
                 ->with(['siswa', 'guru'])
-                ->orderBy('waktu', 'desc')
-                ->get();
+                ->orderBy('waktu', 'desc');
         } elseif ($user->role === 'guru') {
             $attendances = Attendance::where('guru_id', $user->id)
                 ->with(['siswa', 'guru'])
-                ->orderBy('waktu', 'desc')
-                ->get();
+                ->orderBy('waktu', 'desc');
         } else {
-            // Jika selain siswa/guru, misalnya admin: bisa tampilkan semua
+            // Misal untuk admin atau lainnya
             $attendances = Attendance::with(['siswa', 'guru'])
-                ->orderBy('waktu', 'desc')
-                ->get();
+                ->orderBy('waktu', 'desc');
         }
-        return view('attendances.history', compact('attendances'));
+    
+        // Filter berdasarkan tanggal spesifik (format: YYYY-MM-DD)
+        if ($request->has('date') && !empty($request->date)) {
+            $attendances->whereDate('waktu', $request->date);
+        }
+    
+        // Filter berdasarkan bulan (format: YYYY-MM)
+        if ($request->has('month') && !empty($request->month)) {
+            $month = $request->month; // contoh: "2023-04"
+            $attendances->whereYear('waktu', substr($month, 0, 4))
+                        ->whereMonth('waktu', substr($month, 5, 2));
+        }
+    
+        // Filter berdasarkan semester  
+        // (diasumsikan: Semester 1 = Januari - Juni, Semester 2 = Juli - Desember)
+        if ($request->has('semester') && !empty($request->semester)) {
+            $semester = $request->semester;
+            $year = date('Y'); // Anda bisa menyesuaikan dengan filter tahun jika perlu
+            if ($semester == 1) {
+                $attendances->whereYear('waktu', $year)
+                            ->whereMonth('waktu', '>=', 1)
+                            ->whereMonth('waktu', '<=', 6);
+            } elseif ($semester == 2) {
+                $attendances->whereYear('waktu', $year)
+                            ->whereMonth('waktu', '>=', 7)
+                            ->whereMonth('waktu', '<=', 12);
+            }
+        }
+    
+        if ($request->ajax()) {
+            return datatables()
+                ->of($attendances)
+                ->addIndexColumn()
+                ->addColumn('name', function ($attendance) {
+                    if ($attendance->siswa) {
+                        return $attendance->siswa->name;
+                    } elseif ($attendance->guru) {
+                        return $attendance->guru->name;
+                    }
+                    return 'N/A';
+                })
+                ->editColumn('waktu', function ($attendance) {
+                    return \Carbon\Carbon::parse($attendance->waktu)->format('d M Y H:i');
+                })
+                ->editColumn('foto_wajah', function ($attendance) {
+                    if ($attendance->foto_wajah) {
+                        return '<img src="' . asset($attendance->foto_wajah) . '" alt="Foto Wajah" class="w-16 h-16 rounded-full object-cover">';
+                    }
+                    return 'N/A';
+                })
+                ->rawColumns(['foto_wajah'])
+                ->make(true);
+        }
+    
+        return view('attendances.history');
     }
+    
+        
 
 }

@@ -24,7 +24,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/index', [AdminController::class, 'index'])->name('dashboard.index');
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
-
     // AJAX endpoints untuk DataTables
     Route::get('/admin/student-attendances', [AdminController::class, 'getStudentAttendances'])->name('admin.getStudentAttendances');
     Route::get('/admin/teacher-attendances', [AdminController::class, 'getTeacherAttendances'])->name('admin.getTeacherAttendances');
@@ -33,9 +32,6 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-// Route::get('/index',function(){
-//     return view('dashboard.content.index');
-// })->name('index');
 Route::get('/forms',function(){
     return view('dashboard.content.forms');
 })->name('forms');
