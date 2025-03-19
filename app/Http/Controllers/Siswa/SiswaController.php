@@ -7,31 +7,46 @@ use App\Models\User;
 use App\Models\Kelas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Yajra\DataTables\Facades\DataTables;
 
 class SiswaController extends Controller
 {
-    // Tampilkan view data siswa (hanya user dengan role "siswa")
+    // Menampilkan view data siswa
     public function siswa()
     {
-        $siswa = User::where('role', 'siswa')->with('kelas')->get();
-        return view('siswa.index', compact('siswa'));
+        return view('siswa.index');
     }
 
-    // Mengembalikan data siswa dalam format JSON
-    public function index()
+    // Mengembalikan data siswa untuk DataTables via AJAX
+    public function index(Request $request)
     {
-        $siswa = User::where('role', 'siswa')->with('kelas')->get();
-        return response()->json(['siswa' => $siswa]);
+        if ($request->ajax()) {
+            $siswa = User::where('role', 'siswa')->with('kelas')->select('*');
+            return DataTables::of($siswa)
+                ->addColumn('kelas', function ($siswa) {
+                    return $siswa->kelas
+                        ? $siswa->kelas->kelas . " - " . $siswa->kelas->jurusan . " - " . $siswa->kelas->tahun_ajaran
+                        : 'N/A';
+                })
+                ->addColumn('action', function ($siswa) {
+                    $editBtn = '<button class="editSiswa bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded" data-id="' . $siswa->id . '">Edit</button>';
+                    $deleteBtn = ' <button class="deleteSiswa bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded" data-id="' . $siswa->id . '">Hapus</button>';
+                    return $editBtn . $deleteBtn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        return view('siswa.index');
     }
 
-    // Mengembalikan seluruh opsi kelas yang valid
+    // Mengembalikan opsi kelas untuk mengisi dropdown di modal tambah/edit
     public function create()
     {
         $kelas_options = Kelas::all();
         return response()->json(['kelas_options' => $kelas_options]);
     }
 
-    // Simpan data siswa baru ke tabel users
+    // Simpan data siswa baru
     public function store(Request $request)
     {
         $request->validate([
@@ -52,32 +67,33 @@ class SiswaController extends Controller
         ]);
 
         return response()->json([
+            'success' => true,
             'message' => 'Siswa created successfully',
             'siswa'   => $siswa,
         ]);
     }
 
-    // Tampilkan detail siswa dalam format JSON
+    // Tampilkan detail siswa (jika diperlukan)
     public function show(User $siswa)
     {
         if ($siswa->role !== 'siswa') {
-            return response()->json(['message' => 'Data bukan siswa.'], 404);
+            return response()->json(['success' => false, 'message' => 'Data bukan siswa.'], 404);
         }
         $siswa->load('kelas');
-        return response()->json(['siswa' => $siswa]);
+        return response()->json(['success' => true, 'siswa' => $siswa]);
     }
 
-    // Mengembalikan data siswa untuk form edit beserta opsi dropdown
+    // Kembalikan data siswa untuk form edit beserta opsi kelas
     public function edit(User $siswa)
     {
         if ($siswa->role !== 'siswa') {
-            return response()->json(['message' => 'Data bukan siswa.'], 404);
+            return response()->json(['success' => false, 'message' => 'Data bukan siswa.'], 404);
         }
         $siswa->load('kelas');
         $kelas_options = Kelas::all();
-
         return response()->json([
-            'siswa'         => $siswa,
+            'success' => true,
+            'siswa' => $siswa,
             'kelas_options' => $kelas_options,
         ]);
     }
@@ -86,7 +102,7 @@ class SiswaController extends Controller
     public function update(Request $request, User $siswa)
     {
         if ($siswa->role !== 'siswa') {
-            return response()->json(['message' => 'Data bukan siswa.'], 404);
+            return response()->json(['success' => false, 'message' => 'Data bukan siswa.'], 404);
         }
 
         $request->validate([
@@ -104,6 +120,7 @@ class SiswaController extends Controller
         ]);
 
         return response()->json([
+            'success' => true,
             'message' => 'Siswa updated successfully',
             'siswa'   => $siswa,
         ]);
@@ -113,9 +130,9 @@ class SiswaController extends Controller
     public function destroy(User $siswa)
     {
         if ($siswa->role !== 'siswa') {
-            return response()->json(['message' => 'Data bukan siswa.'], 404);
+            return response()->json(['success' => false, 'message' => 'Data bukan siswa.'], 404);
         }
         $siswa->delete();
-        return response()->json(['message' => 'Siswa deleted successfully']);
+        return response()->json(['success' => true, 'message' => 'Siswa deleted successfully']);
     }
 }

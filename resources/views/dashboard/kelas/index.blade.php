@@ -15,18 +15,18 @@
 
         <!-- Tabel Data Kelas -->
         <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-200 dark:bg-gray-700">
+            <table id="kelasTable" class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-100 dark:bg-gray-700">
                     <tr>
-                        <th class="px-4 py-2 text-left text-gray-700 dark:text-gray-300">#</th>
+                        <th class="px-4 py-2 text-left text-gray-700 dark:text-gray-300">No</th>
                         <th class="px-4 py-2 text-left text-gray-700 dark:text-gray-300">Kelas</th>
                         <th class="px-4 py-2 text-left text-gray-700 dark:text-gray-300">Jurusan</th>
                         <th class="px-4 py-2 text-left text-gray-700 dark:text-gray-300">Tahun Ajaran</th>
                         <th class="px-4 py-2 text-center text-gray-700 dark:text-gray-300">Aksi</th>
                     </tr>
                 </thead>
-                <tbody id="kelasTable" class="divide-y divide-gray-200 dark:divide-gray-700">
-                    <!-- Data akan dimuat dengan AJAX -->
+                <tbody class="text-gray-700 dark:text-gray-300">
+                    <!-- Data dimuat secara dinamis melalui AJAX -->
                 </tbody>
             </table>
         </div>
@@ -73,166 +73,166 @@
                 </form>
             </div>
         </div>
-
     </div>
+@endsection
 
-    <!-- Script -->
+@section('scripts')
+    <!-- jQuery (pastikan dimuat sebelum DataTables) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <!-- DataTables CSS & JS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
-        // Pastikan SweetAlert2 sudah dimuat, misalnya dengan:
-        // <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11">
-
-
-        // Load Data Kelas
-        function fetchKelas() {
-            fetch('{{ route('kelas.fetch') }}')
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(data => {
-                    const tbody = document.getElementById('kelasTable');
-                    tbody.innerHTML = '';
-                    data.data.forEach((kelas, index) => {
-                        tbody.innerHTML += `
-    <tr>
-        <td class='px-4 py-2 text-gray-700 dark:text-gray-300'>${index + 1}</td>
-        <td class='px-4 py-2 text-gray-700 dark:text-gray-300'>${kelas.kelas}</td>
-        <td class='px-4 py-2 text-gray-700 dark:text-gray-300'>${kelas.jurusan}</td>
-        <td class='px-4 py-2 text-gray-700 dark:text-gray-300'>${kelas.tahun_ajaran}</td>
-        <td class='px-4 py-2 text-center'>
-            <button onclick='editKelas(${kelas.id})'
-                class='bg-blue-600 hover:bg-yellow-600 text-white px-4 py-2 rounded-md dark:bg-blue-700 dark:hover:bg-yellow-700'>Edit</button>
-            <button onclick='confirmDelete(${kelas.id})'
-                class='bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md dark:bg-red-700 dark:hover:bg-red-800'>Hapus</button>
-        </td>
-    </tr>`;
-                    });
-                })
-                .catch(error => {
-                    console.error('Error fetching kelas:', error);
-                    Swal.fire('Error', 'Terjadi kesalahan saat memuat data kelas.', 'error');
-                });
-        }
-
-        // Modal Control
-        function showModal(id) {
-            document.getElementById(id).classList.remove('hidden');
-            document.body.classList.add('overflow-hidden'); // Mencegah scroll saat modal muncul
-        }
-
-        function hideModal(id) {
-            document.getElementById(id).classList.add('hidden');
-            document.body.classList.remove('overflow-hidden'); // Mengembalikan scroll setelah modal ditutup
-        }
-
-        // Tambah/Edit Kelas
-        document.getElementById('formKelas').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const id = document.getElementById('id_kelas').value;
-            const url = id ? `/kelas/${id}` : '/kelas';
-            const method = id ? 'PUT' : 'POST';
-
-            fetch(url, {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        $(document).ready(function() {
+            // Inisialisasi DataTable menggunakan Yajra DataTables (server-side)
+            var table = $('#kelasTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: '{{ route('kelas.fetch') }}',
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex',
+                        orderable: false,
+                        searchable: false
                     },
-                    body: JSON.stringify({
-                        kelas: document.getElementById('kelas').value,
-                        jurusan: document.getElementById('jurusan').value,
-                        tahun_ajaran: document.getElementById('tahun_ajaran').value
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        fetchKelas();
-                        hideModal('modalKelas');
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Berhasil',
-                            text: 'Data kelas berhasil disimpan.',
-                            timer: 2000,
-                            showConfirmButton: false
-                        });
-                    } else {
-                        Swal.fire('Error', 'Gagal menyimpan data.', 'error');
+                    {
+                        data: 'kelas',
+                        name: 'kelas'
+                    },
+                    {
+                        data: 'jurusan',
+                        name: 'jurusan'
+                    },
+                    {
+                        data: 'tahun_ajaran',
+                        name: 'tahun_ajaran'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
                     }
-                })
-                .catch(error => {
-                    console.error('Error saving kelas:', error);
-                    Swal.fire('Error', 'Terjadi kesalahan saat menyimpan data.', 'error');
-                });
-        });
-
-        // Edit Data
-        function editKelas(id) {
-            fetch(`/kelas/${id}`)
-                .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('id_kelas').value = data.data.id;
-                        document.getElementById('kelas').value = data.data.kelas;
-                        document.getElementById('jurusan').value = data.data.jurusan;
-                        document.getElementById('tahun_ajaran').value = data.data.tahun_ajaran;
-
-                        document.getElementById('modalKelasLabel').textContent = 'Edit Kelas';
-                        showModal('modalKelas');
-                    } else {
-                        Swal.fire('Error', 'Gagal memuat data kelas.', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching kelas data:', error);
-                    Swal.fire('Error', 'Terjadi kesalahan saat memuat data kelas.', 'error');
-                });
-        }
-
-        // Hapus Data dengan SweetAlert2 Confirmation
-        function confirmDelete(id) {
-            Swal.fire({
-                title: 'Konfirmasi Hapus',
-                text: 'Apakah Anda yakin ingin menghapus data ini?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Hapus',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    deleteKelas(id);
-                }
+                ],
+                language: {
+                    searchPlaceholder: "Cari kelas...",
+                    search: ""
+                },
+                responsive: true,
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ]
             });
-        }
 
-        function deleteKelas(id) {
-            fetch(`/kelas/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            // Modal Control Functions
+            window.showModal = function(id) {
+                document.getElementById(id).classList.remove('hidden');
+                document.body.classList.add('overflow-hidden');
+            };
+
+            window.hideModal = function(id) {
+                document.getElementById(id).classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
+            };
+
+            // Form Submission untuk Tambah/Edit Kelas
+            $('#formKelas').on('submit', function(e) {
+                e.preventDefault();
+                var id = $('#id_kelas').val();
+                var url = id ? '/kelas/' + id : '/kelas';
+                var method = id ? 'PUT' : 'POST';
+                $.ajax({
+                    url: url,
+                    type: method,
+                    data: {
+                        kelas: $('#kelas').val(),
+                        jurusan: $('#jurusan').val(),
+                        tahun_ajaran: $('#tahun_ajaran').val(),
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(data) {
+                        if (data.success) {
+                            table.ajax.reload();
+                            hideModal('modalKelas');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: data.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            });
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        Swal.fire('Error', 'Terjadi kesalahan saat menyimpan data.', 'error');
                     }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        fetchKelas();
-                        Swal.fire('Deleted!', 'Data kelas berhasil dihapus.', 'success');
-                    } else {
-                        Swal.fire('Error', 'Gagal menghapus data.', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error deleting kelas:', error);
-                    Swal.fire('Error', 'Terjadi kesalahan saat menghapus data.', 'error');
                 });
-        }
+            });
 
-        // Load Data Saat Halaman Dimuat
-        fetchKelas();
+            // Fungsi Edit Kelas
+            window.editKelas = function(id) {
+                $.ajax({
+                    url: '/kelas/' + id,
+                    type: 'GET',
+                    success: function(data) {
+                        if (data.success) {
+                            $('#id_kelas').val(data.data.id);
+                            $('#kelas').val(data.data.kelas);
+                            $('#jurusan').val(data.data.jurusan);
+                            $('#tahun_ajaran').val(data.data.tahun_ajaran);
+                            $('#modalKelasLabel').text('Edit Kelas');
+                            showModal('modalKelas');
+                        } else {
+                            Swal.fire('Error', 'Gagal memuat data kelas.', 'error');
+                        }
+                    },
+                    error: function() {
+                        Swal.fire('Error', 'Terjadi kesalahan saat memuat data kelas.', 'error');
+                    }
+                });
+            };
+
+            // Fungsi Hapus Kelas dengan Konfirmasi
+            window.confirmDelete = function(id) {
+                Swal.fire({
+                    title: 'Konfirmasi Hapus',
+                    text: 'Apakah Anda yakin ingin menghapus data ini?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Hapus',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: '/kelas/' + id,
+                            type: 'DELETE',
+                            data: {
+                                _token: '{{ csrf_token() }}'
+                            },
+                            success: function(data) {
+                                if (data.success) {
+                                    table.ajax.reload();
+                                    Swal.fire('Deleted!', data.message, 'success');
+                                } else {
+                                    Swal.fire('Error', data.message, 'error');
+                                }
+                            },
+                            error: function() {
+                                Swal.fire('Error', 'Terjadi kesalahan saat menghapus data.',
+                                    'error');
+                            }
+                        });
+                    }
+                });
+            };
+        });
     </script>
 @endsection

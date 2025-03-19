@@ -68,17 +68,9 @@ Route::post('/absensi', [AttendanceController::class, 'store'])->name('absensi.s
 
 });
 
-
-
-// Route::middleware(['auth'])->group(function () {
-//     Route::resource('piket', PiketController::class);
-// });
-
-
 Route::middleware(['auth'])->group(function () {
     // Resource route untuk manajemen piket dengan CRUD Ajax
     Route::resource('piket', PiketController::class);
-
     // Routes untuk absensi
     Route::get('/absensi', [AttendanceController::class, 'index'])->name('attendance.index');
     Route::post('/absensi', [AttendanceController::class, 'store'])->name('attendance.store');

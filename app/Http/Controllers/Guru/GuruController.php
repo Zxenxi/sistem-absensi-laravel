@@ -6,20 +6,33 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Yajra\DataTables\Facades\DataTables;
 
 class GuruController extends Controller
 {
-    // Tampilkan halaman dashboard guru (view)
+    // Menampilkan halaman dashboard guru (view)
     public function guru()
     {
         return view('dashboard.guru.index');
     }
 
-    // Ambil semua data guru (users dengan role 'guru')
-    public function index()
+    // Ambil semua data guru menggunakan Yajra DataTables
+    public function index(Request $request)
     {
-        $data = User::where('role', 'guru')->get();
-        return response()->json(['data' => $data]);
+        if ($request->ajax()) {
+            $data = User::where('role', 'guru')->select('*');
+            return DataTables::of($data)
+                ->addIndexColumn() // Menambahkan kolom DT_RowIndex
+                ->addColumn('action', function ($row) {
+                    $btn  = '<button class="editGuru bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded" data-id="' . $row->id . '">Edit</button>';
+                    $btn .= ' <button class="deleteGuru bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded" data-id="' . $row->id . '">Hapus</button>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+        // Jika bukan AJAX, kembalikan view dashboard guru
+        return view('dashboard.guru.index');
     }
 
     // Tampilkan detail guru tertentu
@@ -65,7 +78,6 @@ class GuruController extends Controller
             return response()->json(['success' => false, 'message' => 'Guru tidak ditemukan.'], 404);
         }
 
-        // Validasi input; jika password diisi, harus memenuhi minimal 6 karakter
         $validatedData = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email,' . $id,
@@ -77,7 +89,6 @@ class GuruController extends Controller
             'email' => $validatedData['email'],
         ];
 
-        // Jika password diisi, update password (hash password baru)
         if ($request->filled('password')) {
             $updateData['password'] = Hash::make($request->password);
         }

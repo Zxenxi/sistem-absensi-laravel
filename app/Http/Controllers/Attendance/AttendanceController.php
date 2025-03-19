@@ -1,4 +1,4 @@
-    <?php
+<?php
 
     namespace App\Http\Controllers\Attendance;
 
@@ -37,7 +37,7 @@
             // Koordinat sekolah & radius absensi
             $schoolLat = -7.709829747808012;
             $schoolLng = 110.0077439397974;
-            $allowedRadius = 60000;
+            $allowedRadius = 60000000;
 
             // Parsing lokasi
             $lokasiUser = explode(',', $request->lokasi);
@@ -285,3 +285,4 @@
             
 
     }
+    
