@@ -21,7 +21,7 @@ class AttendanceSeeder extends Seeder
             Attendance::create([
                 'siswa_id'  => $faker->randomElement($siswaIds),
                 'guru_id'   => null,
-                'waktu'     => Carbon::now()->subDays(rand(0, 10))->toDateTimeString(),
+                'waktu'     => Carbon::now('Asia/Jakarta')->subDays(rand(0, 10))->toDateTimeString(),
                 'status'    => $faker->randomElement(['Hadir', 'Terlambat']),
                 'lokasi'    => $faker->address,
                 'foto_wajah'=> null,
@@ -32,7 +32,7 @@ class AttendanceSeeder extends Seeder
             Attendance::create([
                 'siswa_id'  => null,
                 'guru_id'   => $faker->randomElement($guruIds),
-                'waktu'     => Carbon::now()->subDays(rand(0, 10))->toDateTimeString(),
+                'waktu'     => Carbon::now('Asia/Jakarta')->subDays(rand(0, 10))->toDateTimeString(),
                 'status'    => $faker->randomElement(['Hadir', 'Terlambat']),
                 'lokasi'    => $faker->address,
                 'foto_wajah'=> null,
