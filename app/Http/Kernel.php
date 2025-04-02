@@ -12,7 +12,7 @@ use Illuminate\Auth\Middleware\RequirePassword;
 use Illuminate\Http\Middleware\SetCacheHeaders;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Cookie\Middleware\EncryptCookies;
-use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middlewares\RoleMiddleware;
 use Illuminate\Routing\Middleware\ThrottleRequests;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Routing\Middleware\ValidateSignature;
@@ -20,13 +20,13 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Foundation\Http\Middleware\TrimStrings;
 use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middlewares\PermissionMiddleware;
 use Illuminate\Auth\Middleware\RedirectIfAuthenticated;
 use Illuminate\Auth\Middleware\AuthenticateWithBasicAuth;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Foundation\Http\Middleware\ValidatePostSize;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
-use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+use Spatie\Permission\Middlewares\RoleOrPermissionMiddleware;
 use Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull;
 use Illuminate\Foundation\Http\Middleware\PreventRequestsDuringMaintenance;
 
@@ -83,7 +83,7 @@ class Kernel extends HttpKernel
         'auth.basic'          => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'cache.headers'       => \Illuminate\Http\Middleware\SetCacheHeaders::class,
         'can'                 => \Illuminate\Auth\Middleware\Authorize::class,
-        'guest'               => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'guest'               => \Illuminate\Auth\Middleware\RedirectIfAuthenticated::class,
         'password.confirm'    => \Illuminate\Auth\Middleware\RequirePassword::class,
         'signed'              => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle'            => \Illuminate\Routing\Middleware\ThrottleRequests::class,

@@ -279,7 +279,7 @@
                     },
                     error: function(xhr) {
                         Swal.fire('Error', 'Terjadi kesalahan saat memuat data siswa.',
-                        'error');
+                            'error');
                     }
                 });
             });

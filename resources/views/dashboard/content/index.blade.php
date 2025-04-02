@@ -1,19 +1,12 @@
 @extends('layouts.dashboard')
-@section('title', 'Dashboard Absensi SMK')
+@section('title', 'Dashboard Presensi SMK')
 
 @section('content')
     @if (Auth::user()->role === 'admin')
         <div class="container px-6 mx-auto grid">
-            <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">Dashboard Absensi SMK</h2>
-
-            <!-- Notifikasi Realtime -->
-            <div class="mb-6">
-                <div id="notificationArea"
-                    class="p-4 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-100 rounded-lg">
-                    <p class="text-sm">Tidak ada notifikasi baru.</p>
-                </div>
-            </div>
-
+            <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
+                Dashboard Presensi
+            </h2>
             <!-- Cards Informasi -->
             <div class="grid gap-6 mb-8 sm:grid-cols-2 lg:grid-cols-4">
                 <!-- Card Total Siswa -->
@@ -112,11 +105,61 @@
                     <small class="text-xs text-gray-500">Perhatikan keterlambatan</small>
                 </div>
             </div>
-
+            <!-- Form Filter untuk Siswa: Jurusan, Tahun Ajaran, & Kelas -->
+            <div class="mb-6 text-black">
+                <form id="filterForm" action="{{ route('admin.dashboard') }}" method="GET" class="flex space-x-4">
+                    <div>
+                        <label for="jurusan" class="block text-sm font-medium text-gray-700">Jurusan</label>
+                        <select name="jurusan" id="jurusan"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <option value="">Semua Jurusan</option>
+                            @foreach ($jurusans as $jurusan)
+                                <option value="{{ $jurusan->jurusan }}"
+                                    {{ request('jurusan') == $jurusan->jurusan ? 'selected' : '' }}>
+                                    {{ $jurusan->jurusan }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="tahunAjaran" class="block text-sm font-medium text-gray-700">Tahun Ajaran</label>
+                        <select name="tahunAjaran" id="tahunAjaran"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <option value="">Semua Tahun Ajaran</option>
+                            @foreach ($tahunAjarans as $tahun)
+                                <option value="{{ $tahun->tahun_ajaran }}"
+                                    {{ request('tahunAjaran') == $tahun->tahun_ajaran ? 'selected' : '' }}>
+                                    {{ $tahun->tahun_ajaran }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="kelas" class="block text-sm font-medium text-gray-700">Kelas</label>
+                        <select name="kelas" id="kelas"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <option value="">Semua Kelas</option>
+                            @foreach ($kelases as $kelas)
+                                <option value="{{ $kelas->kelas }}"
+                                    {{ request('kelas') == $kelas->kelas ? 'selected' : '' }}>
+                                    {{ $kelas->kelas }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                            Filter
+                        </button>
+                    </div>
+                </form>
+            </div>
             <!-- Tabel Absensi Siswa -->
             <div class="w-full overflow-x-auto rounded-lg shadow bg-white dark:bg-gray-800 p-4 mb-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Absensi Siswa Terbaru</h3>
+                    <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200">
+                        Presensi Siswa Terbaru
+                    </h3>
                     <button id="refreshStudentTable"
                         class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600">
                         Refresh
@@ -151,10 +194,37 @@
                 </table>
             </div>
 
+            <!-- Filter untuk Tabel Guru: Dropdown Berdasarkan Nama Guru -->
+            <div class="mb-6 text-black">
+                <div class="flex space-x-4">
+                    <div>
+                        <label for="namaGuru" class="block text-sm font-medium text-gray-700">Pilih Guru</label>
+                        <select name="namaGuru" id="namaGuru"
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <option value="">Semua Guru</option>
+                            @foreach ($teachers as $teacher)
+                                <option value="{{ $teacher->name }}"
+                                    {{ request('namaGuru') == $teacher->name ? 'selected' : '' }}>
+                                    {{ $teacher->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button id="filterTeacherBtn"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                            Filter
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Tabel Absensi Guru -->
             <div class="w-full overflow-x-auto rounded-lg shadow bg-white dark:bg-gray-800 p-4 mb-6">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Absensi Guru Terbaru</h3>
+                    <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-200">
+                        Presensi Guru Terbaru
+                    </h3>
                     <button id="refreshTeacherTable"
                         class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600">
                         Refresh
@@ -218,11 +288,18 @@
         $(document).ready(function() {
             console.log('Initializing DataTables and Charts');
 
-            // Initialize DataTable for Students
+            // Inisialisasi DataTable untuk Siswa
             var studentTable = $('#studentTable').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('admin.getStudentAttendances') }}",
+                ajax: {
+                    url: "{{ route('admin.getStudentAttendances') }}",
+                    data: function(d) {
+                        d.jurusan = $('#jurusan').val();
+                        d.tahunAjaran = $('#tahunAjaran').val();
+                        d.kelas = $('#kelas').val();
+                    }
+                },
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
@@ -248,9 +325,8 @@
                     {
                         data: 'status',
                         name: 'status',
-                        orderable: false,
-                        searchable: false
-                    }
+                        orderable: false
+                    } // Biarkan searchable default
                 ],
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.13.1/i18n/English.json"
@@ -260,11 +336,16 @@
                 }
             });
 
-            // Initialize DataTable for Teachers
+            // Inisialisasi DataTable untuk Guru
             var teacherTable = $('#teacherTable').DataTable({
                 processing: true,
                 serverSide: true,
-                ajax: "{{ route('admin.getTeacherAttendances') }}",
+                ajax: {
+                    url: "{{ route('admin.getTeacherAttendances') }}",
+                    data: function(d) {
+                        d.namaGuru = $('#namaGuru').val();
+                    }
+                },
                 columns: [{
                         data: 'DT_RowIndex',
                         name: 'DT_RowIndex',
@@ -282,9 +363,8 @@
                     {
                         data: 'status',
                         name: 'status',
-                        orderable: false,
-                        searchable: false
-                    }
+                        orderable: false
+                    } // Biarkan searchable default
                 ],
                 language: {
                     url: "//cdn.datatables.net/plug-ins/1.13.1/i18n/English.json"
@@ -294,7 +374,17 @@
                 }
             });
 
-            // Refresh buttons for tables
+            // Trigger reload DataTable saat filter pada siswa berubah
+            $('#jurusan, #tahunAjaran, #kelas').on('change', function() {
+                studentTable.ajax.reload();
+            });
+
+            // Trigger reload DataTable untuk guru saat dropdown filter berubah
+            $('#namaGuru').on('change', function() {
+                teacherTable.ajax.reload();
+            });
+
+            // Tombol refresh untuk tabel
             $('#refreshStudentTable').click(function() {
                 studentTable.ajax.reload(null, false);
             });
@@ -302,7 +392,7 @@
                 teacherTable.ajax.reload(null, false);
             });
 
-            // Chart Distribution (Pie Chart)
+            // Chart Distribusi (Pie Chart)
             var ctxPie = document.getElementById('pie').getContext('2d');
             window.attendanceChart = new Chart(ctxPie, {
                 type: 'pie',
@@ -331,7 +421,7 @@
                 }
             });
 
-            // Chart Trend (Line Chart)
+            // Chart Tren (Line Chart)
             var ctxTrend = document.getElementById('trendChart').getContext('2d');
             var trendChart = new Chart(ctxTrend, {
                 type: 'line',

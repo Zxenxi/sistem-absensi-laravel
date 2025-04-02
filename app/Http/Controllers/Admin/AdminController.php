@@ -4,163 +4,179 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Kelas;
 use App\Models\User;
 use App\Models\Attendance;
 use App\Models\PiketSchedule;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Yajra\DataTables\Facades\DataTables;
 
 class AdminController extends Controller
 {
-    // Menampilkan halaman dashboard
-    public function index()
+    /**
+     * Tampilkan halaman dashboard dengan data awal.
+     */
+    public function index(Request $request)
     {
-        // Hitung total siswa dan guru
+        // Ambil data unik untuk filter siswa
+        $jurusans = Kelas::select('jurusan')->distinct()->get();
+        $tahunAjarans = Kelas::select('tahun_ajaran')->distinct()->get();
+        $kelases = Kelas::select('kelas')->distinct()->get();
+
+        // Ambil data guru untuk filter dropdown guru
+        $teachers = User::where('role', 'guru')->orderBy('name')->get();
+
+        // Hitung total siswa dan guru.
         $totalSiswa = User::where('role', 'siswa')->count();
-        $totalGuru  = User::where('role', 'guru')->count();
+        $totalGuru = User::where('role', 'guru')->count();
 
-        // Hitung kehadiran hari ini dan jadwal piket hari ini
-        $todayAttendance = Attendance::whereDate('waktu', Carbon::today())->count();
-        $todayPiket = PiketSchedule::where('schedule_date', Carbon::today()->toDateString())->count();
+        // Ambil data presensi hari ini (misal, berdasarkan kolom 'waktu').
+        $today = Carbon::today();
+        $todayAttendance = Attendance::whereDate('waktu', $today)->count();
 
-        // Distribusi status absensi hari ini (untuk chart pie)
-        $attendanceDistribution = Attendance::select('status', DB::raw('count(*) as count'))
-            ->whereDate('waktu', Carbon::today())
-            ->groupBy('status')
-            ->pluck('count', 'status');
-        $chartLabels = $attendanceDistribution->keys();
-        $chartData   = $attendanceDistribution->values();
+        // Ambil data jadwal piket hari ini.
+        $todayPiket = PiketSchedule::whereDate('schedule_date', $today)->count();
 
-        // Persentase kehadiran
+        // Hitung persentase kehadiran.
         $attendancePercentage = $totalSiswa > 0 ? ($todayAttendance / $totalSiswa) * 100 : 0;
 
-        // Hitung siswa terlambat (asumsi status 'terlambat')
-        $lateStudents = Attendance::where('status', 'terlambat')
-            ->whereDate('waktu', Carbon::today())
-            ->count();
+        // Hitung jumlah siswa terlambat.
+        $lateStudents = Attendance::whereDate('waktu', $today)
+            ->where('status', 'terlambat')->count();
 
-        // Hitung tren kehadiran mingguan: Group by tanggal dalam minggu ini
-        $startOfWeek = Carbon::now()->startOfWeek();
-        $endOfWeek = Carbon::now()->endOfWeek();
-        $trendAttendances = Attendance::select(DB::raw('DATE(waktu) as date'), DB::raw('count(*) as count'))
-            ->whereBetween('waktu', [$startOfWeek, $endOfWeek])
-            ->groupBy(DB::raw('DATE(waktu)'))
-            ->orderBy(DB::raw('DATE(waktu)'))
-            ->get();
-        $trendLabels = $trendAttendances->pluck('date')
-            ->map(function($date) {
-                return Carbon::parse($date)->format('d M');
-            })->toArray();
-        $trendData = $trendAttendances->pluck('count')->toArray();
+        // Data untuk chart (contoh sederhana)
+        $chartLabels = ['Hadir', 'Terlambat', 'Izin', 'Alpha'];
+        $chartData = [
+            Attendance::whereDate('waktu', $today)->where('status', 'hadir')->count(),
+            Attendance::whereDate('waktu', $today)->where('status', 'terlambat')->count(),
+            Attendance::whereDate('waktu', $today)->where('status', 'izin')->count(),
+            Attendance::whereDate('waktu', $today)->where('status', 'alpha')->count(),
+        ];
+
+        // Data trend kehadiran 7 hari terakhir.
+        $trendLabels = [];
+        $trendData = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = Carbon::today()->subDays($i);
+            $trendLabels[] = $date->format('d M');
+            $trendData[] = Attendance::whereDate('waktu', $date)->count();
+        }
 
         return view('dashboard.content.index', compact(
+            'jurusans',
+            'tahunAjarans',
+            'kelases',
+            'teachers',
             'totalSiswa',
             'totalGuru',
             'todayAttendance',
             'todayPiket',
+            'attendancePercentage',
             'chartLabels',
             'chartData',
-            'attendancePercentage',
-            'lateStudents',
             'trendLabels',
-            'trendData'
+            'trendData',
+            'lateStudents'
         ));
     }
 
-    // Endpoint AJAX untuk DataTables absensi siswa
+    /**
+     * Endpoint AJAX untuk mengambil data presensi siswa.
+     */
     public function getStudentAttendances(Request $request)
     {
-        $attendances = Attendance::with(['siswa.kelas'])
-            ->whereNotNull('siswa_id')
-            ->orderBy('waktu', 'desc');
+        // Query untuk mengambil absensi siswa beserta relasi ke kelas.
+        $query = Attendance::with(['siswa.kelas'])
+            ->whereNotNull('siswa_id');
 
-        return DataTables::of($attendances)
+        // Terapkan filter berdasarkan jurusan.
+        if ($request->filled('jurusan')) {
+            $jurusan = $request->input('jurusan');
+            $query->whereHas('siswa.kelas', function ($q) use ($jurusan) {
+                $q->where('jurusan', $jurusan);
+            });
+        }
+
+        // Terapkan filter berdasarkan tahun ajaran.
+        if ($request->filled('tahunAjaran')) {
+            $tahunAjaran = $request->input('tahunAjaran');
+            $query->whereHas('siswa.kelas', function ($q) use ($tahunAjaran) {
+                $q->where('tahun_ajaran', $tahunAjaran);
+            });
+        }
+
+        // Terapkan filter berdasarkan kelas.
+        if ($request->filled('kelas')) {
+            $kelas = $request->input('kelas');
+            $query->whereHas('siswa.kelas', function ($q) use ($kelas) {
+                $q->where('kelas', $kelas);
+            });
+        }
+
+        return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('nama_siswa', function ($attendance) {
-                return $attendance->siswa->name ?? 'N/A';
+            ->editColumn('nama_siswa', function ($attendance) {
+                return $attendance->siswa ? $attendance->siswa->name : '-';
             })
-            ->addColumn('kelas', function ($attendance) {
-                return $attendance->siswa->kelas->kelas ?? 'N/A';
+            ->editColumn('kelas', function ($attendance) {
+                return ($attendance->siswa && $attendance->siswa->kelas) ? $attendance->siswa->kelas->kelas : '-';
             })
-            ->addColumn('jurusan', function ($attendance) {
-                return $attendance->siswa->kelas->jurusan ?? 'N/A';
+            ->editColumn('jurusan', function ($attendance) {
+                return ($attendance->siswa && $attendance->siswa->kelas) ? $attendance->siswa->kelas->jurusan : '-';
             })
             ->editColumn('waktu', function ($attendance) {
-                return Carbon::parse($attendance->waktu)->format('d/m/Y H:i');
+                return \Carbon\Carbon::parse($attendance->waktu)->format('d M Y H:i:s');
             })
-            ->editColumn('status', function ($attendance) {
-                $status = $attendance->status;
-                $class = '';
-                if ($status == 'Hadir') {
-                    $class = 'text-green-700 bg-green-100 dark:bg-green-700 dark:text-green-100';
-                } elseif ($status == 'Sakit') {
-                    $class = 'text-orange-700 bg-orange-100 dark:bg-orange-700 dark:text-orange-700';
-                } elseif ($status == 'Izin') {
-                    $class = 'text-green-700 bg-blue-100 dark:bg-blue-700 dark:text-blue-400';
-                } else {
-                    $class = 'text-red-700 bg-red-100 dark:bg-red-700 dark:text-red-100';
-                }
-                return '<span class="px-2 py-1 font-semibold leading-tight rounded-full '.$class.'">'.$status.'</span>';
-            })
-            ->filterColumn('nama_siswa', function($query, $keyword) {
-                $query->whereHas('siswa', function($q) use ($keyword) {
+            // Filter global khusus untuk kolom nama_siswa, kelas, dan jurusan.
+            ->filterColumn('nama_siswa', function ($query, $keyword) {
+                $query->whereHas('siswa', function ($q) use ($keyword) {
                     $q->where('name', 'like', "%{$keyword}%");
                 });
             })
-            ->filterColumn('kelas', function($query, $keyword) {
-                $query->whereHas('siswa.kelas', function($q) use ($keyword) {
+            ->filterColumn('kelas', function ($query, $keyword) {
+                $query->whereHas('siswa.kelas', function ($q) use ($keyword) {
                     $q->where('kelas', 'like', "%{$keyword}%");
                 });
             })
-            ->filterColumn('jurusan', function($query, $keyword) {
-                $query->whereHas('siswa.kelas', function($q) use ($keyword) {
+            ->filterColumn('jurusan', function ($query, $keyword) {
+                $query->whereHas('siswa.kelas', function ($q) use ($keyword) {
                     $q->where('jurusan', 'like', "%{$keyword}%");
                 });
             })
-            ->rawColumns(['status'])
             ->make(true);
     }
 
-    // Endpoint AJAX untuk DataTables absensi guru
+    /**
+     * Endpoint AJAX untuk mengambil data presensi guru.
+     */
     public function getTeacherAttendances(Request $request)
     {
-        $attendances = Attendance::with('guru')
-            ->whereNotNull('guru_id')
-            ->orderBy('waktu', 'desc');
+        // Query untuk mengambil absensi guru.
+        $query = Attendance::with('guru')
+            ->whereNotNull('guru_id');
 
-        return DataTables::of($attendances)
+        // Terapkan filter berdasarkan nama guru dari dropdown.
+        if ($request->filled('namaGuru')) {
+            $namaGuru = $request->input('namaGuru');
+            $query->whereHas('guru', function ($q) use ($namaGuru) {
+                $q->where('name', $namaGuru);
+            });
+        }
+
+        return DataTables::of($query)
             ->addIndexColumn()
-            ->addColumn('nama_guru', function ($attendance) {
-                return $attendance->guru->name ?? 'N/A';
-            })
-            ->addColumn('lokasi', function ($attendance) {
-                return $attendance->lokasi;
+            ->editColumn('nama_guru', function ($attendance) {
+                return $attendance->guru ? $attendance->guru->name : '-';
             })
             ->editColumn('waktu', function ($attendance) {
-                return Carbon::parse($attendance->waktu)->format('d/m/Y H:i');
+                return \Carbon\Carbon::parse($attendance->waktu)->format('d M Y H:i:s');
             })
-            ->editColumn('status', function ($attendance) {
-                $status = $attendance->status;
-                $class = '';
-                if ($status == 'Hadir') {
-                    $class = 'text-green-700 bg-green-100 dark:bg-green-700 dark:text-green-100';
-                } elseif ($status == 'Sakit') {
-                    $class = 'text-orange-700 bg-orange-100 dark:bg-orange-700 dark:text-orange-700';
-                } elseif ($status == 'Izin') {
-                    $class = 'text-green-700 bg-blue-100 dark:bg-blue-700 dark:text-blue-400';
-                } else {
-                    $class = 'text-red-700 bg-red-100 dark:bg-red-700 dark:text-red-100';
-                }
-                return '<span class="px-2 py-1 font-semibold leading-tight rounded-full '.$class.'">'.$status.'</span>';
-            })
-            ->filterColumn('nama_guru', function($query, $keyword) {
-                $query->whereHas('guru', function($q) use ($keyword) {
+            // Filter global khusus untuk kolom nama_guru.
+            ->filterColumn('nama_guru', function ($query, $keyword) {
+                $query->whereHas('guru', function ($q) use ($keyword) {
                     $q->where('name', 'like', "%{$keyword}%");
                 });
             })
-            ->rawColumns(['status'])
             ->make(true);
     }
-        
 }

@@ -12,9 +12,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    {{-- @vite('resources/css/app.css') --}}
-    {{-- <link rel="stylesheet" href="./assets/css/tailwind.output.css" /> --}}
-    {{-- <link rel="stylesheet" href="./resources/css/tailwind.output.css" /> --}}
+    <link rel="icon" href="{{ asset('assets/img/penabur.png') }}" type="image/x-icon">
+
     @vite(['resources/css/app.css', 'resources/css/tailwind.output.css'])
 
     {{-- data table script --}}
