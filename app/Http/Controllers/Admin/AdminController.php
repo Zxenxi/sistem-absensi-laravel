@@ -10,172 +10,183 @@ use App\Models\Attendance;
 use App\Models\PiketSchedule;
 use Carbon\Carbon;
 use Yajra\DataTables\Facades\DataTables;
+use Illuminate\Support\Facades\Auth; // Import Auth facade
 
 class AdminController extends Controller
 {
     /**
-     * Tampilkan halaman dashboard dengan data awal.
+     * Display the dashboard page with initial data.
      */
     public function index(Request $request)
     {
-        // Ambil data unik untuk filter siswa
-        $jurusans = Kelas::select('jurusan')->distinct()->get();
-        $tahunAjarans = Kelas::select('tahun_ajaran')->distinct()->get();
-        $kelases = Kelas::select('kelas')->distinct()->get();
+        $today = Carbon::today();
 
-        // Ambil data guru untuk filter dropdown guru
-        $teachers = User::where('role', 'guru')->orderBy('name')->get();
+        // Data for filters
+        $jurusans = Kelas::select('jurusan')->distinct()->orderBy('jurusan')->get();
+        $tahunAjarans = Kelas::select('tahun_ajaran')->distinct()->orderBy('tahun_ajaran', 'desc')->get();
+        $kelases = Kelas::select('kelas')->distinct()->orderBy('kelas')->get();
+        $teachers = User::where('role', 'guru')->orderBy('name')->get(['id', 'name']); // Only select necessary fields
 
-        // Hitung total siswa dan guru.
+        // Core Counts
         $totalSiswa = User::where('role', 'siswa')->count();
         $totalGuru = User::where('role', 'guru')->count();
 
-        // Ambil data presensi hari ini (misal, berdasarkan kolom 'waktu').
-        $today = Carbon::today();
-        $todayAttendance = Attendance::whereDate('waktu', $today)->count();
+        // --- Refined Attendance Calculations ---
+        // Count only 'hadir' and 'terlambat' for "Kehadiran Hari Ini" metric
+        $presentOrLateTodayQuery = Attendance::whereDate('waktu', $today)
+                                         ->whereIn('status', ['hadir', 'terlambat']);
 
-        // Ambil data jadwal piket hari ini.
+        $todayAttendanceCount = $presentOrLateTodayQuery->count(); // Count for the display stat
+
+        // Calculate percentage based on present/late vs total students
+        $attendancePercentage = $totalSiswa > 0 ? ($todayAttendanceCount / $totalSiswa) * 100 : 0;
+
+        // Count specifically late students
+        $lateStudents = Attendance::whereDate('waktu', $today)
+                                  ->where('status', 'terlambat')->count();
+        // --- End Refined Calculations ---
+
+        // Piket schedule count (Keep if needed elsewhere, otherwise optional)
         $todayPiket = PiketSchedule::whereDate('schedule_date', $today)->count();
 
-        // Hitung persentase kehadiran.
-        $attendancePercentage = $totalSiswa > 0 ? ($todayAttendance / $totalSiswa) * 100 : 0;
-
-        // Hitung jumlah siswa terlambat.
-        $lateStudents = Attendance::whereDate('waktu', $today)
-            ->where('status', 'terlambat')->count();
-
-        // Data untuk chart (contoh sederhana)
+        // Data for Pie Chart (Distribution of all statuses)
         $chartLabels = ['Hadir', 'Terlambat', 'Izin', 'Alpha'];
         $chartData = [
             Attendance::whereDate('waktu', $today)->where('status', 'hadir')->count(),
-            Attendance::whereDate('waktu', $today)->where('status', 'terlambat')->count(),
+            $lateStudents, // Use the already calculated value
             Attendance::whereDate('waktu', $today)->where('status', 'izin')->count(),
             Attendance::whereDate('waktu', $today)->where('status', 'alpha')->count(),
         ];
 
-        // Data trend kehadiran 7 hari terakhir.
+        // Data for Line Chart (Weekly Trend - Total Attendances per day)
         $trendLabels = [];
         $trendData = [];
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
             $trendLabels[] = $date->format('d M');
+            // Count all attendance records for the trend line
             $trendData[] = Attendance::whereDate('waktu', $date)->count();
         }
+
+        // Get authenticated user information
+        $user = Auth::user();
 
         return view('dashboard.content.index', compact(
             'jurusans',
             'tahunAjarans',
             'kelases',
             'teachers',
-            'totalSiswa',
-            'totalGuru',
-            'todayAttendance',
-            'todayPiket',
-            'attendancePercentage',
+            'totalSiswa',           // Available if needed, but not directly used in main UI cards
+            'totalGuru',            // Available if needed, but not directly used in main UI cards
+            'todayAttendanceCount', // Renamed for clarity
+            'todayPiket',           // Available if needed
+            'attendancePercentage', // Refined calculation
             'chartLabels',
             'chartData',
             'trendLabels',
             'trendData',
-            'lateStudents'
+            'lateStudents',
+            'user'                  // Pass the user object
         ));
     }
 
     /**
-     * Endpoint AJAX untuk mengambil data presensi siswa.
+     * AJAX endpoint for student attendance data.
      */
     public function getStudentAttendances(Request $request)
     {
-        // Query untuk mengambil absensi siswa beserta relasi ke kelas.
-        $query = Attendance::with(['siswa.kelas'])
-            ->whereNotNull('siswa_id');
+        // Eager load necessary relationships efficiently
+        $query = Attendance::with(['siswa' => function ($query) {
+            $query->select('id', 'name', 'kelas_id'); // Select only needed fields
+        }, 'siswa.kelas' => function ($query) {
+            $query->select('id', 'kelas', 'jurusan', 'tahun_ajaran'); // Select only needed fields
+        }])
+        ->whereNotNull('siswa_id')
+        ->select('attendances.*'); // Select all from attendances
 
-        // Terapkan filter berdasarkan jurusan.
+        // Apply filters robustly
         if ($request->filled('jurusan')) {
-            $jurusan = $request->input('jurusan');
-            $query->whereHas('siswa.kelas', function ($q) use ($jurusan) {
-                $q->where('jurusan', $jurusan);
-            });
+            $query->whereHas('siswa.kelas', fn ($q) => $q->where('jurusan', $request->input('jurusan')));
         }
-
-        // Terapkan filter berdasarkan tahun ajaran.
         if ($request->filled('tahunAjaran')) {
-            $tahunAjaran = $request->input('tahunAjaran');
-            $query->whereHas('siswa.kelas', function ($q) use ($tahunAjaran) {
-                $q->where('tahun_ajaran', $tahunAjaran);
-            });
+            $query->whereHas('siswa.kelas', fn ($q) => $q->where('tahun_ajaran', $request->input('tahunAjaran')));
+        }
+        if ($request->filled('kelas')) {
+            $query->whereHas('siswa.kelas', fn ($q) => $q->where('kelas', $request->input('kelas')));
         }
 
-        // Terapkan filter berdasarkan kelas.
-        if ($request->filled('kelas')) {
-            $kelas = $request->input('kelas');
-            $query->whereHas('siswa.kelas', function ($q) use ($kelas) {
-                $q->where('kelas', $kelas);
-            });
-        }
+        // Order by time descending by default
+        $query->orderBy('waktu', 'desc');
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->editColumn('nama_siswa', function ($attendance) {
-                return $attendance->siswa ? $attendance->siswa->name : '-';
+            ->editColumn('nama_siswa', fn ($attendance) => $attendance->siswa->name ?? '-')
+            ->editColumn('kelas', fn ($attendance) => $attendance->siswa->kelas->kelas ?? '-')
+            ->editColumn('jurusan', fn ($attendance) => $attendance->siswa->kelas->jurusan ?? '-')
+            ->editColumn('waktu', fn ($attendance) => Carbon::parse($attendance->waktu)->isoFormat('D MMM YYYY, HH:mm')) // User-friendly format
+            ->editColumn('status', function ($attendance) {
+                // Add styling based on status
+                $status = $attendance->status;
+                $badgeClass = match(strtolower($status)) {
+                    'hadir' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+                    'terlambat' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-200',
+                    'izin' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+                    'alpha' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+                    default => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                };
+                return '<span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ' . $badgeClass . '">' . ucfirst($status) . '</span>';
             })
-            ->editColumn('kelas', function ($attendance) {
-                return ($attendance->siswa && $attendance->siswa->kelas) ? $attendance->siswa->kelas->kelas : '-';
-            })
-            ->editColumn('jurusan', function ($attendance) {
-                return ($attendance->siswa && $attendance->siswa->kelas) ? $attendance->siswa->kelas->jurusan : '-';
-            })
-            ->editColumn('waktu', function ($attendance) {
-                return \Carbon\Carbon::parse($attendance->waktu)->format('d M Y H:i:s');
-            })
-            // Filter global khusus untuk kolom nama_siswa, kelas, dan jurusan.
+            // Raw columns are needed to render HTML (like the status badge)
+             ->rawColumns(['status'])
+            // Custom filtering for related columns
             ->filterColumn('nama_siswa', function ($query, $keyword) {
-                $query->whereHas('siswa', function ($q) use ($keyword) {
-                    $q->where('name', 'like', "%{$keyword}%");
-                });
+                $query->whereHas('siswa', fn ($q) => $q->where('name', 'like', "%{$keyword}%"));
             })
             ->filterColumn('kelas', function ($query, $keyword) {
-                $query->whereHas('siswa.kelas', function ($q) use ($keyword) {
-                    $q->where('kelas', 'like', "%{$keyword}%");
-                });
+                $query->whereHas('siswa.kelas', fn ($q) => $q->where('kelas', 'like', "%{$keyword}%"));
             })
             ->filterColumn('jurusan', function ($query, $keyword) {
-                $query->whereHas('siswa.kelas', function ($q) use ($keyword) {
-                    $q->where('jurusan', 'like', "%{$keyword}%");
-                });
+                $query->whereHas('siswa.kelas', fn ($q) => $q->where('jurusan', 'like', "%{$keyword}%"));
             })
             ->make(true);
     }
 
     /**
-     * Endpoint AJAX untuk mengambil data presensi guru.
+     * AJAX endpoint for teacher attendance data.
      */
     public function getTeacherAttendances(Request $request)
     {
-        // Query untuk mengambil absensi guru.
-        $query = Attendance::with('guru')
-            ->whereNotNull('guru_id');
+        $query = Attendance::with(['guru' => fn($q)=>$q->select('id', 'name')]) // Eager load guru name
+                           ->whereNotNull('guru_id')
+                           ->select('attendances.*'); // Select all from attendances
 
-        // Terapkan filter berdasarkan nama guru dari dropdown.
         if ($request->filled('namaGuru')) {
-            $namaGuru = $request->input('namaGuru');
-            $query->whereHas('guru', function ($q) use ($namaGuru) {
-                $q->where('name', $namaGuru);
-            });
+            // Use whereHas for consistency and potential complex conditions later
+            $query->whereHas('guru', fn ($q) => $q->where('name', $request->input('namaGuru')));
         }
+
+        // Order by time descending by default
+        $query->orderBy('waktu', 'desc');
 
         return DataTables::of($query)
             ->addIndexColumn()
-            ->editColumn('nama_guru', function ($attendance) {
-                return $attendance->guru ? $attendance->guru->name : '-';
+            ->editColumn('nama_guru', fn ($attendance) => $attendance->guru->name ?? '-')
+            ->editColumn('waktu', fn ($attendance) => Carbon::parse($attendance->waktu)->isoFormat('D MMM YYYY, HH:mm'))
+            ->editColumn('status', function ($attendance) {
+                // Add styling based on status (consistent with student status)
+                $status = $attendance->status;
+                 $badgeClass = match(strtolower($status)) {
+                    'hadir' => 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+                    'terlambat' => 'bg-yellow-100 text-yellow-800 dark:bg-yellow-700 dark:text-yellow-200',
+                    'izin' => 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+                    'alpha' => 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+                    default => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                };
+                return '<span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ' . $badgeClass . '">' . ucfirst($status) . '</span>';
             })
-            ->editColumn('waktu', function ($attendance) {
-                return \Carbon\Carbon::parse($attendance->waktu)->format('d M Y H:i:s');
-            })
-            // Filter global khusus untuk kolom nama_guru.
+            ->rawColumns(['status']) // Allow HTML rendering for status
             ->filterColumn('nama_guru', function ($query, $keyword) {
-                $query->whereHas('guru', function ($q) use ($keyword) {
-                    $q->where('name', 'like', "%{$keyword}%");
-                });
+                 $query->whereHas('guru', fn ($q) => $q->where('name', 'like', "%{$keyword}%"));
             })
             ->make(true);
     }

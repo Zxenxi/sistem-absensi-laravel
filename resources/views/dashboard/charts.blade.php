@@ -1,965 +1,956 @@
 <!DOCTYPE html>
-<html :class="{ 'theme-dark': dark }" x-data="data()" lang="en">
-  <head>
+<html lang="id" x-data="{
+    darkMode: localStorage.getItem('theme') === 'dark',
+    init() {
+        this.darkMode = localStorage.getItem('theme') === 'dark';
+        this.$watch('darkMode', val => {
+            localStorage.setItem('theme', val ? 'dark' : 'light');
+            if (val) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            // Panggil update tema chart setelah DOM siap dan chart diinisialisasi
+            if (typeof updateAllChartThemes === 'function') {
+                setTimeout(updateAllChartThemes, 50); // Beri sedikit jeda
+            }
+        });
+        // Terapkan tema awal saat init
+        if (this.darkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }
+}" :class="{ 'dark': darkMode }">
+
+<head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Charts - Windmill Dashboard</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./assets/css/tailwind.output.css" />
-    <script
-      src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js"
-      defer
-    ></script>
-    <script src="./assets/js/init-alpine.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.css"
-    />
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"
-      defer
-    ></script>
-    <script src="./assets/js/charts-lines.js" defer></script>
-    <script src="./assets/js/charts-pie.js" defer></script>
-    <script src="./assets/js/charts-bars.js" defer></script>
-  </head>
-  <body>
-    <div
-      class="flex h-screen bg-gray-50 dark:bg-gray-900"
-      :class="{ 'overflow-hidden': isSideMenuOpen}"
-    >
-      <!-- Desktop sidebar -->
-      <aside
-        class="z-20 hidden w-64 overflow-y-auto bg-white dark:bg-gray-800 md:block flex-shrink-0"
-      >
-        <div class="py-4 text-gray-500 dark:text-gray-400">
-          <a
-            class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200"
-            href="#"
-          >
-            Windmill
-          </a>
-          <ul class="mt-6">
-            <li class="relative px-6 py-3">
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                href="index.html"
-              >
-                <svg
-                  class="w-5 h-5"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                  ></path>
-                </svg>
-                <span class="ml-4">Dashboard</span>
-              </a>
-            </li>
-          </ul>
-          <ul>
-            <li class="relative px-6 py-3">
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                href="forms.html"
-              >
-                <svg
-                  class="w-5 h-5"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                  ></path>
-                </svg>
-                <span class="ml-4">Forms</span>
-              </a>
-            </li>
-            <li class="relative px-6 py-3">
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                href="cards.html"
-              >
-                <svg
-                  class="w-5 h-5"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                  ></path>
-                </svg>
-                <span class="ml-4">Cards</span>
-              </a>
-            </li>
-            <li class="relative px-6 py-3">
-              <span
-                class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg"
-                aria-hidden="true"
-              ></span>
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold text-gray-800 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-100"
-                href="charts.html"
-              >
-                <svg
-                  class="w-5 h-5"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"
-                  ></path>
-                  <path d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
-                </svg>
-                <span class="ml-4">Charts</span>
-              </a>
-            </li>
-            <li class="relative px-6 py-3">
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                href="buttons.html"
-              >
-                <svg
-                  class="w-5 h-5"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
-                  ></path>
-                </svg>
-                <span class="ml-4">Buttons</span>
-              </a>
-            </li>
-            <li class="relative px-6 py-3">
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                href="modals.html"
-              >
-                <svg
-                  class="w-5 h-5"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                  ></path>
-                </svg>
-                <span class="ml-4">Modals</span>
-              </a>
-            </li>
-            <li class="relative px-6 py-3">
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                href="tables.html"
-              >
-                <svg
-                  class="w-5 h-5"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                </svg>
-                <span class="ml-4">Tables</span>
-              </a>
-            </li>
-            <li class="relative px-6 py-3">
-              <button
-                class="inline-flex items-center justify-between w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                @click="togglePagesMenu"
-                aria-haspopup="true"
-              >
-                <span class="inline-flex items-center">
-                  <svg
-                    class="w-5 h-5"
-                    aria-hidden="true"
-                    fill="none"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
-                    ></path>
-                  </svg>
-                  <span class="ml-4">Pages</span>
-                </span>
-                <svg
-                  class="w-4 h-4"
-                  aria-hidden="true"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </button>
-              <template x-if="isPagesMenuOpen">
-                <ul
-                  x-transition:enter="transition-all ease-in-out duration-300"
-                  x-transition:enter-start="opacity-25 max-h-0"
-                  x-transition:enter-end="opacity-100 max-h-xl"
-                  x-transition:leave="transition-all ease-in-out duration-300"
-                  x-transition:leave-start="opacity-100 max-h-xl"
-                  x-transition:leave-end="opacity-0 max-h-0"
-                  class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
-                  aria-label="submenu"
-                >
-                  <li
-                    class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                  >
-                    <a class="w-full" href="pages/login.html">Login</a>
-                  </li>
-                  <li
-                    class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                  >
-                    <a class="w-full" href="pages/create-account.html">
-                      Create account
-                    </a>
-                  </li>
-                  <li
-                    class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                  >
-                    <a class="w-full" href="pages/forgot-password.html">
-                      Forgot password
-                    </a>
-                  </li>
-                  <li
-                    class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                  >
-                    <a class="w-full" href="pages/404.html">404</a>
-                  </li>
-                  <li
-                    class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                  >
-                    <a class="w-full" href="pages/blank.html">Blank</a>
-                  </li>
-                </ul>
-              </template>
-            </li>
-          </ul>
-          <div class="px-6 my-6">
-            <button
-              class="flex items-center justify-between w-full px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
-            >
-              Create account
-              <span class="ml-2" aria-hidden="true">+</span>
-            </button>
-          </div>
-        </div>
-      </aside>
-      <!-- Mobile sidebar -->
-      <!-- Backdrop -->
-      <div
-        x-show="isSideMenuOpen"
-        x-transition:enter="transition ease-in-out duration-150"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="transition ease-in-out duration-150"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
-        class="fixed inset-0 z-10 flex items-end bg-black bg-opacity-50 sm:items-center sm:justify-center"
-      ></div>
-      <aside
-        class="fixed inset-y-0 z-20 flex-shrink-0 w-64 mt-16 overflow-y-auto bg-white dark:bg-gray-800 md:hidden"
-        x-show="isSideMenuOpen"
-        x-transition:enter="transition ease-in-out duration-150"
-        x-transition:enter-start="opacity-0 transform -translate-x-20"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="transition ease-in-out duration-150"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0 transform -translate-x-20"
-        @click.away="closeSideMenu"
-        @keydown.escape="closeSideMenu"
-      >
-        <div class="py-4 text-gray-500 dark:text-gray-400">
-          <a
-            class="ml-6 text-lg font-bold text-gray-800 dark:text-gray-200"
-            href="#"
-          >
-            Windmill
-          </a>
-          <ul class="mt-6">
-            <li class="relative px-6 py-3">
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                href="index.html"
-              >
-                <svg
-                  class="w-5 h-5"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                  ></path>
-                </svg>
-                <span class="ml-4">Dashboard</span>
-              </a>
-            </li>
-          </ul>
-          <ul>
-            <li class="relative px-6 py-3">
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                href="forms.html"
-              >
-                <svg
-                  class="w-5 h-5"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-                  ></path>
-                </svg>
-                <span class="ml-4">Forms</span>
-              </a>
-            </li>
-            <li class="relative px-6 py-3">
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                href="cards.html"
-              >
-                <svg
-                  class="w-5 h-5"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                  ></path>
-                </svg>
-                <span class="ml-4">Cards</span>
-              </a>
-            </li>
-            <li class="relative px-6 py-3">
-              <span
-                class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg"
-                aria-hidden="true"
-              ></span>
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold text-gray-800 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200 dark:text-gray-100"
-                href="charts.html"
-              >
-                <svg
-                  class="w-5 h-5"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"
-                  ></path>
-                  <path d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path>
-                </svg>
-                <span class="ml-4">Charts</span>
-              </a>
-            </li>
-            <li class="relative px-6 py-3">
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                href="buttons.html"
-              >
-                <svg
-                  class="w-5 h-5"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"
-                  ></path>
-                </svg>
-                <span class="ml-4">Buttons</span>
-              </a>
-            </li>
-            <li class="relative px-6 py-3">
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                href="modals.html"
-              >
-                <svg
-                  class="w-5 h-5"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-                  ></path>
-                </svg>
-                <span class="ml-4">Modals</span>
-              </a>
-            </li>
-            <li class="relative px-6 py-3">
-              <a
-                class="inline-flex items-center w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                href="tables.html"
-              >
-                <svg
-                  class="w-5 h-5"
-                  aria-hidden="true"
-                  fill="none"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                </svg>
-                <span class="ml-4">Tables</span>
-              </a>
-            </li>
-            <li class="relative px-6 py-3">
-              <button
-                class="inline-flex items-center justify-between w-full text-sm font-semibold transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                @click="togglePagesMenu"
-                aria-haspopup="true"
-              >
-                <span class="inline-flex items-center">
-                  <svg
-                    class="w-5 h-5"
-                    aria-hidden="true"
-                    fill="none"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
-                    ></path>
-                  </svg>
-                  <span class="ml-4">Pages</span>
-                </span>
-                <svg
-                  class="w-4 h-4"
-                  aria-hidden="true"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
-              </button>
-              <template x-if="isPagesMenuOpen">
-                <ul
-                  x-transition:enter="transition-all ease-in-out duration-300"
-                  x-transition:enter-start="opacity-25 max-h-0"
-                  x-transition:enter-end="opacity-100 max-h-xl"
-                  x-transition:leave="transition-all ease-in-out duration-300"
-                  x-transition:leave-start="opacity-100 max-h-xl"
-                  x-transition:leave-end="opacity-0 max-h-0"
-                  class="p-2 mt-2 space-y-2 overflow-hidden text-sm font-medium text-gray-500 rounded-md shadow-inner bg-gray-50 dark:text-gray-400 dark:bg-gray-900"
-                  aria-label="submenu"
-                >
-                  <li
-                    class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                  >
-                    <a class="w-full" href="pages/login.html">Login</a>
-                  </li>
-                  <li
-                    class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                  >
-                    <a class="w-full" href="pages/create-account.html">
-                      Create account
-                    </a>
-                  </li>
-                  <li
-                    class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                  >
-                    <a class="w-full" href="pages/forgot-password.html">
-                      Forgot password
-                    </a>
-                  </li>
-                  <li
-                    class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                  >
-                    <a class="w-full" href="pages/404.html">404</a>
-                  </li>
-                  <li
-                    class="px-2 py-1 transition-colors duration-150 hover:text-gray-800 dark:hover:text-gray-200"
-                  >
-                    <a class="w-full" href="pages/blank.html">Blank</a>
-                  </li>
-                </ul>
-              </template>
-            </li>
-          </ul>
-          <div class="px-6 my-6">
-            <button
-              class="flex items-center justify-between px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
-            >
-              Create account
-              <span class="ml-2" aria-hidden="true">+</span>
-            </button>
-          </div>
-        </div>
-      </aside>
-      <div class="flex flex-col flex-1">
-        <header class="z-10 py-4 bg-white shadow-md dark:bg-gray-800">
-          <div
-            class="container flex items-center justify-between h-full px-6 mx-auto text-purple-600 dark:text-purple-300"
-          >
-            <!-- Mobile hamburger -->
-            <button
-              class="p-1 -ml-1 mr-5 rounded-md md:hidden focus:outline-none focus:shadow-outline-purple"
-              @click="toggleSideMenu"
-              aria-label="Menu"
-            >
-              <svg
-                class="w-6 h-6"
-                aria-hidden="true"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
-                  clip-rule="evenodd"
-                ></path>
-              </svg>
-            </button>
-            <!-- Search input -->
-            <div class="flex justify-center flex-1 lg:mr-32">
-              <div
-                class="relative w-full max-w-xl mr-6 focus-within:text-purple-500"
-              >
-                <div class="absolute inset-y-0 flex items-center pl-2">
-                  <svg
-                    class="w-4 h-4"
-                    aria-hidden="true"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                      clip-rule="evenodd"
-                    ></path>
-                  </svg>
+    <title>Admin Dashboard - Penabur Presensi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script type="module" src="https://unpkg.com/lucide@latest"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            /* gray-100 */
+            border-radius: 10px;
+        }
+
+        html.dark ::-webkit-scrollbar-track {
+            background: #1f2937;
+            /* gray-800 */
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            /* slate-300 */
+            border-radius: 10px;
+        }
+
+        html.dark ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            /* gray-600 */
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+            /* slate-400 */
+        }
+
+        html.dark ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+            /* gray-500 */
+        }
+
+        /* Gaya item navigasi atas yang aktif */
+        .top-nav-item.active {
+            background-color: #eef2ff;
+            /* indigo-50 */
+            color: #4f46e5;
+            /* indigo-600 */
+            font-weight: 600;
+        }
+
+        html.dark .top-nav-item.active {
+            background-color: #3730a3;
+            /* indigo-800 */
+            color: #e0e7ff;
+            /* indigo-200 */
+        }
+
+        /* Gaya default item navigasi atas */
+        .top-nav-item {
+            color: #6b7280;
+            /* gray-500 */
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+
+        html.dark .top-nav-item {
+            color: #d1d5db;
+            /* gray-300 */
+        }
+
+        .top-nav-item:hover {
+            background-color: #f3f4f6;
+            /* gray-100 */
+            color: #1f2937;
+            /* gray-800 */
+        }
+
+        html.dark .top-nav-item:hover {
+            background-color: #374151;
+            /* gray-700 */
+            color: #ffffff;
+        }
+
+        /* Gaya untuk item navigasi bawah yang aktif (mobile) */
+        .bottom-nav-item.active {
+            color: #4f46e5;
+            /* indigo-600 */
+        }
+
+        html.dark .bottom-nav-item.active {
+            color: #818cf8;
+            /* indigo-400 */
+        }
+
+        /* Sembunyikan elemen dengan x-cloak saat AlpineJS memuat */
+        [x-cloak] {
+            display: none !important;
+        }
+
+        /* Progress bar styling */
+        .progress-bar {
+            background-color: #e5e7eb;
+            /* gray-200 */
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 6px;
+        }
+
+        html.dark .progress-bar {
+            background-color: #4b5563;
+            /* gray-600 */
+        }
+
+        .progress-fill {
+            background-color: #818cf8;
+            /* indigo-400 */
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.5s ease;
+        }
+
+        /* Pastikan canvas chart responsif */
+        canvas {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased font-sans" x-data="{ isMobileMenuOpen: false, isUserMenuOpen: false }"
+    x-init="init()">
+    <div class="flex flex-col min-h-screen">
+        <header
+            class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-30 border-b border-gray-200 dark:border-gray-700"
+            @click.away="isUserMenuOpen = false">
+            <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="relative flex justify-between items-center h-16">
+                    <div class="flex-shrink-0 flex items-center">
+                        <svg class="h-8 w-auto text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="ml-2 text-xl font-bold text-gray-800 dark:text-white hidden sm:inline">
+                            Penabur Presensi
+                        </span>
+                    </div>
+
+                    <div class="hidden md:flex md:absolute md:inset-y-0 md:left-1/2 md:transform md:-translate-x-1/2">
+                        <nav class="flex space-x-2">
+                            <a href="#"
+                                class="top-nav-item active flex items-center space-x-2 px-3 py-2 rounded-md text-sm"
+                                aria-current="page">
+                                <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                                <span>Dashboard</span></a>
+                            <a href="#"
+                                class="top-nav-item flex items-center space-x-2 px-3 py-2 rounded-md text-sm">
+                                <i data-lucide="users" class="w-4 h-4"></i>
+                                <span>Manajemen Pengguna</span></a>
+                            <a href="#"
+                                class="top-nav-item flex items-center space-x-2 px-3 py-2 rounded-md text-sm">
+                                <i data-lucide="building" class="w-4 h-4"></i>
+                                <span>Manajemen Kelas</span></a>
+                            <a href="#"
+                                class="top-nav-item flex items-center space-x-2 px-3 py-2 rounded-md text-sm">
+                                <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                                <span>Laporan</span></a>
+                        </nav>
+                    </div>
+
+                    <div
+                        class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                        <div class="flex items-center space-x-3">
+                            <button type="button" title="Cari"
+                                class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 focus:outline-none p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <span class="sr-only">Cari</span>
+                                <i data-lucide="search" class="w-5 h-5"></i>
+                            </button>
+
+                            <button @click="darkMode = !darkMode" type="button"
+                                :title="darkMode ? 'Mode Terang' : 'Mode Gelap'"
+                                class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 focus:outline-none p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <span class="sr-only">Toggle Dark Mode</span>
+                                <i x-show="!darkMode" data-lucide="moon" class="w-5 h-5"></i>
+                                <i x-show="darkMode" data-lucide="sun" class="w-5 h-5" x-cloak></i>
+                            </button>
+
+                            <button type="button" title="Notifikasi"
+                                class="relative text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 focus:outline-none p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <span class="sr-only">Notifikasi</span>
+                                <i data-lucide="bell" class="w-5 h-5"></i>
+                                <span
+                                    class="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-500 ring-1 ring-white dark:ring-gray-800"></span>
+                            </button>
+
+                            <div class="relative">
+                                <button @click="isUserMenuOpen = !isUserMenuOpen" type="button"
+                                    class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800"
+                                    id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                                    <span class="sr-only">Buka menu user</span>
+                                    <img class="h-8 w-8 rounded-full object-cover ring-1 ring-gray-300 dark:ring-gray-600"
+                                        src="https://placehold.co/100x100/6366F1/FFFFFF?text=A" alt="Admin Avatar"
+                                        onerror="this.onerror=null; this.src='https://placehold.co/100x100/cccccc/ffffff?text=Err';" />
+                                    <span
+                                        class="hidden md:block ml-2 text-sm font-medium text-gray-700 dark:text-gray-200">Admin
+                                        User</span>
+                                    <i data-lucide="chevron-down"
+                                        class="hidden md:block ml-1 h-4 w-4 text-gray-400"></i>
+                                </button>
+                                <div x-show="isUserMenuOpen" x-cloak
+                                    x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="transform opacity-0 scale-95"
+                                    x-transition:enter-end="transform opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="transform opacity-100 scale-100"
+                                    x-transition:leave-end="transform opacity-0 scale-95"
+                                    class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none"
+                                    role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button"
+                                    tabindex="-1">
+                                    <a href="#"
+                                        class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+                                        role="menuitem" tabindex="-1">
+                                        <i data-lucide="user-circle" class="w-4 h-4 mr-2"></i>
+                                        Profil Anda</a>
+                                    <a href="#"
+                                        class="flex items-center px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600"
+                                        role="menuitem" tabindex="-1">
+                                        <i data-lucide="settings" class="w-4 h-4 mr-2"></i>
+                                        Pengaturan</a>
+                                    <a href="#"
+                                        class="flex items-center px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-600"
+                                        role="menuitem" tabindex="-1">
+                                        <i data-lucide="log-out" class="w-4 h-4 mr-2"></i>
+                                        Keluar</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="absolute inset-y-0 right-0 flex items-center md:hidden">
+                        <button @click="isMobileMenuOpen = !isMobileMenuOpen" id="mobile-menu-button"
+                            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 dark:text-gray-500 hover:text-gray-500 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                            aria-controls="mobile-menu" aria-expanded="false">
+                            <span class="sr-only">Buka menu utama</span>
+                            <i x-show="!isMobileMenuOpen" data-lucide="menu" class="block h-6 w-6"></i>
+                            <i x-show="isMobileMenuOpen" data-lucide="x" class="block h-6 w-6" x-cloak></i>
+                        </button>
+                    </div>
                 </div>
-                <input
-                  class="w-full pl-8 pr-2 text-sm text-gray-700 placeholder-gray-600 bg-gray-100 border-0 rounded-md dark:placeholder-gray-500 dark:focus:shadow-outline-gray dark:focus:placeholder-gray-600 dark:bg-gray-700 dark:text-gray-200 focus:placeholder-gray-500 focus:bg-white focus:border-purple-300 focus:outline-none focus:shadow-outline-purple form-input"
-                  type="text"
-                  placeholder="Search for projects"
-                  aria-label="Search"
-                />
-              </div>
             </div>
-            <ul class="flex items-center flex-shrink-0 space-x-6">
-              <!-- Theme toggler -->
-              <li class="flex">
-                <button
-                  class="rounded-md focus:outline-none focus:shadow-outline-purple"
-                  @click="toggleTheme"
-                  aria-label="Toggle color mode"
-                >
-                  <template x-if="!dark">
-                    <svg
-                      class="w-5 h-5"
-                      aria-hidden="true"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"
-                      ></path>
-                    </svg>
-                  </template>
-                  <template x-if="dark">
-                    <svg
-                      class="w-5 h-5"
-                      aria-hidden="true"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fill-rule="evenodd"
-                        d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
-                        clip-rule="evenodd"
-                      ></path>
-                    </svg>
-                  </template>
-                </button>
-              </li>
-              <!-- Notifications menu -->
-              <li class="relative">
-                <button
-                  class="relative align-middle rounded-md focus:outline-none focus:shadow-outline-purple"
-                  @click="toggleNotificationsMenu"
-                  @keydown.escape="closeNotificationsMenu"
-                  aria-label="Notifications"
-                  aria-haspopup="true"
-                >
-                  <svg
-                    class="w-5 h-5"
-                    aria-hidden="true"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"
-                    ></path>
-                  </svg>
-                  <!-- Notification badge -->
-                  <span
-                    aria-hidden="true"
-                    class="absolute top-0 right-0 inline-block w-3 h-3 transform translate-x-1 -translate-y-1 bg-red-600 border-2 border-white rounded-full dark:border-gray-800"
-                  ></span>
-                </button>
-                <template x-if="isNotificationsMenuOpen">
-                  <ul
-                    x-transition:leave="transition ease-in duration-150"
-                    x-transition:leave-start="opacity-100"
-                    x-transition:leave-end="opacity-0"
-                    @click.away="closeNotificationsMenu"
-                    @keydown.escape="closeNotificationsMenu"
-                    class="absolute right-0 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:text-gray-300 dark:border-gray-700 dark:bg-gray-700"
-                    aria-label="submenu"
-                  >
-                    <li class="flex">
-                      <a
-                        class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                        href="#"
-                      >
-                        <span>Messages</span>
-                        <span
-                          class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-600 bg-red-100 rounded-full dark:text-red-100 dark:bg-red-600"
-                        >
-                          13
-                        </span>
-                      </a>
-                    </li>
-                    <li class="flex">
-                      <a
-                        class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                        href="#"
-                      >
-                        <span>Sales</span>
-                        <span
-                          class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-red-600 bg-red-100 rounded-full dark:text-red-100 dark:bg-red-600"
-                        >
-                          2
-                        </span>
-                      </a>
-                    </li>
-                    <li class="flex">
-                      <a
-                        class="inline-flex items-center justify-between w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                        href="#"
-                      >
-                        <span>Alerts</span>
-                      </a>
-                    </li>
-                  </ul>
-                </template>
-              </li>
-              <!-- Profile menu -->
-              <li class="relative">
-                <button
-                  class="align-middle rounded-full focus:shadow-outline-purple focus:outline-none"
-                  @click="toggleProfileMenu"
-                  @keydown.escape="closeProfileMenu"
-                  aria-label="Account"
-                  aria-haspopup="true"
-                >
-                  <img
-                    class="object-cover w-8 h-8 rounded-full"
-                    src="https://images.unsplash.com/photo-1502378735452-bc7d86632805?ixlib=rb-0.3.5&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max&s=aa3a807e1bbdfd4364d1f449eaa96d82"
-                    alt=""
-                    aria-hidden="true"
-                  />
-                </button>
-                <template x-if="isProfileMenuOpen">
-                  <ul
-                    x-transition:leave="transition ease-in duration-150"
-                    x-transition:leave-start="opacity-100"
-                    x-transition:leave-end="opacity-0"
-                    @click.away="closeProfileMenu"
-                    @keydown.escape="closeProfileMenu"
-                    class="absolute right-0 w-56 p-2 mt-2 space-y-2 text-gray-600 bg-white border border-gray-100 rounded-md shadow-md dark:border-gray-700 dark:text-gray-300 dark:bg-gray-700"
-                    aria-label="submenu"
-                  >
-                    <li class="flex">
-                      <a
-                        class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                        href="#"
-                      >
-                        <svg
-                          class="w-4 h-4 mr-3"
-                          aria-hidden="true"
-                          fill="none"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                          ></path>
-                        </svg>
-                        <span>Profile</span>
-                      </a>
-                    </li>
-                    <li class="flex">
-                      <a
-                        class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                        href="#"
-                      >
-                        <svg
-                          class="w-4 h-4 mr-3"
-                          aria-hidden="true"
-                          fill="none"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-                          ></path>
-                          <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        <span>Settings</span>
-                      </a>
-                    </li>
-                    <li class="flex">
-                      <a
-                        class="inline-flex items-center w-full px-2 py-1 text-sm font-semibold transition-colors duration-150 rounded-md hover:bg-gray-100 hover:text-gray-800 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                        href="#"
-                      >
-                        <svg
-                          class="w-4 h-4 mr-3"
-                          aria-hidden="true"
-                          fill="none"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
-                          ></path>
-                        </svg>
-                        <span>Log out</span>
-                      </a>
-                    </li>
-                  </ul>
-                </template>
-              </li>
-            </ul>
-          </div>
+
+            <div x-show="isMobileMenuOpen" x-cloak class="md:hidden border-t border-gray-200 dark:border-gray-700"
+                id="mobile-menu" x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-1">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="#"
+                        class="flex items-center space-x-2 bg-indigo-50 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-200 block px-3 py-2 rounded-md text-base font-medium"
+                        aria-current="page">
+                        <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                        <span>Dashboard</span></a>
+                    <a href="#"
+                        class="flex items-center space-x-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                        <span>Manajemen Pengguna</span></a>
+                    <a href="#"
+                        class="flex items-center space-x-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                        <i data-lucide="building" class="w-5 h-5"></i>
+                        <span>Manajemen Kelas</span></a>
+                    <a href="#"
+                        class="flex items-center space-x-2 text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5"></i>
+                        <span>Laporan</span></a>
+                </div>
+            </div>
         </header>
-        <main class="h-full pb-16 overflow-y-auto">
-          <div class="container px-6 mx-auto grid">
-            <h2
-              class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200"
-            >
-              Charts
-            </h2>
-            <!-- CTA -->
-            <a
-              class="flex items-center justify-between p-4 mb-8 text-sm font-semibold text-purple-100 bg-purple-600 rounded-lg shadow-md focus:outline-none focus:shadow-outline-purple"
-              href="https://github.com/estevanmaito/windmill-dashboard"
-            >
-              <div class="flex items-center">
-                <svg
-                  class="w-5 h-5 mr-2"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                  ></path>
-                </svg>
-                <span>Star this project on GitHub</span>
-              </div>
-              <span>View more &RightArrow;</span>
-            </a>
 
-            <p class="mb-8 text-gray-600 dark:text-gray-400">
-              Charts are provided by
-              <a
-                class="text-purple-600 dark:text-purple-400 hover:underline"
-                href="https://www.chartjs.org/"
-              >
-                Chart.js
-              </a>
-              . Note that the default legends are disabled and you should
-              provide a description for your charts in HTML. See source code for
-              examples.
-            </p>
+        <main class="flex-1 overflow-y-auto pb-16 md:pb-0">
+            <div class="p-4 sm:p-6 lg:p-8 space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <div>
+                        <h1 class="text-2xl font-semibold text-gray-800 dark:text-gray-200">
+                            Halo Admin!
+                        </h1>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                            Selamat datang kembali, semoga harimu menyenangkan.
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-2 flex-wrap gap-y-2">
+                        <button title="Filter"
+                            class="p-2 rounded-lg border bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 shadow-sm">
+                            <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
+                        </button>
+                        <select
+                            class="text-sm rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm">
+                            <option>Semua Kelas</option>
+                            <option>Kelas 10</option>
+                            <option>Kelas 11</option>
+                            <option>Kelas 12</option>
+                        </select>
+                        <select
+                            class="text-sm rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm">
+                            <option>30 Hari Terakhir</option>
+                            <option>7 Hari Terakhir</option>
+                            <option>Bulan Ini</option>
+                            <option>Tahun Ini</option>
+                        </select>
+                        <button title="Pilih Tanggal"
+                            class="p-2 rounded-lg border bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-600 shadow-sm">
+                            <i data-lucide="calendar-days" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
 
-            <div class="grid gap-6 mb-8 md:grid-cols-2">
-              <!-- Doughnut/Pie chart -->
-              <div
-                class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800"
-              >
-                <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
-                  Doughnut/Pie
-                </h4>
-                <canvas id="pie"></canvas>
-                <div
-                  class="flex justify-center mt-4 space-x-3 text-sm text-gray-600 dark:text-gray-400"
-                >
-                  <!-- Chart legend -->
-                  <div class="flex items-center">
-                    <span
-                      class="inline-block w-3 h-3 mr-1 bg-blue-600 rounded-full"
-                    ></span>
-                    <span>Shirts</span>
-                  </div>
-                  <div class="flex items-center">
-                    <span
-                      class="inline-block w-3 h-3 mr-1 bg-teal-500 rounded-full"
-                    ></span>
-                    <span>Shoes</span>
-                  </div>
-                  <div class="flex items-center">
-                    <span
-                      class="inline-block w-3 h-3 mr-1 bg-purple-600 rounded-full"
-                    ></span>
-                    <span>Bags</span>
-                  </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div
+                        class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Total Siswa
+                            </h3>
+                            <span class="flex-shrink-0 p-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/50">
+                                <i data-lucide="users" class="h-5 w-5 text-indigo-600 dark:text-indigo-400"></i>
+                            </span>
+                        </div>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-white">
+                            1250
+                        </p>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Hadir Hari Ini
+                            </h3>
+                            <span class="flex-shrink-0 p-1.5 rounded-full bg-green-100 dark:bg-green-900/50">
+                                <i data-lucide="user-check" class="h-5 w-5 text-green-600 dark:text-green-400"></i>
+                            </span>
+                        </div>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-white">
+                            1195
+                        </p>
+                        <p class="text-xs text-green-600 dark:text-green-400 mt-1">
+                            <i data-lucide="arrow-up-right" class="inline w-3 h-3"></i>
+                            95.6%
+                        </p>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Absen Hari Ini
+                            </h3>
+                            <span class="flex-shrink-0 p-1.5 rounded-full bg-red-100 dark:bg-red-900/50">
+                                <i data-lucide="user-x" class="w-5 h-5 text-red-600 dark:text-red-400"></i>
+                            </span>
+                        </div>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-white">55</p>
+                        <p class="text-xs text-red-600 dark:text-red-400 mt-1">
+                            <i data-lucide="arrow-down-right" class="inline w-3 h-3"></i>
+                            4.4%
+                        </p>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                Terlambat Hari Ini
+                            </h3>
+                            <span class="flex-shrink-0 p-1.5 rounded-full bg-yellow-100 dark:bg-yellow-900/50">
+                                <i data-lucide="clock" class="w-5 h-5 text-yellow-600 dark:text-yellow-400"></i>
+                            </span>
+                        </div>
+                        <p class="text-3xl font-bold text-gray-900 dark:text-white">25</p>
+                        <p class="text-xs text-yellow-600 dark:text-yellow-400 mt-1">
+                            <i data-lucide="alert-triangle" class="inline w-3 h-3"></i> 2.0%
+                        </p>
+                    </div>
                 </div>
-              </div>
-              <!-- Lines chart -->
-              <div
-                class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800"
-              >
-                <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
-                  Lines
-                </h4>
-                <canvas id="line"></canvas>
-                <div
-                  class="flex justify-center mt-4 space-x-3 text-sm text-gray-600 dark:text-gray-400"
-                >
-                  <!-- Chart legend -->
-                  <div class="flex items-center">
-                    <span
-                      class="inline-block w-3 h-3 mr-1 bg-teal-500 rounded-full"
-                    ></span>
-                    <span>Organic</span>
-                  </div>
-                  <div class="flex items-center">
-                    <span
-                      class="inline-block w-3 h-3 mr-1 bg-purple-600 rounded-full"
-                    ></span>
-                    <span>Paid</span>
-                  </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div
+                        class="lg:col-span-2 bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                                Laporan Kehadiran Total
+                            </h3>
+                            <button title="Opsi"
+                                class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <div class="h-72 relative">
+                            <canvas id="totalAttendanceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                                Siswa Berdasarkan Gender
+                            </h3>
+                            <button title="Opsi"
+                                class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <div class="h-72 flex justify-center items-center relative">
+                            <canvas id="genderChart"></canvas>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <!-- Bars chart -->
-              <div
-                class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800"
-              >
-                <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
-                  Bars
-                </h4>
-                <canvas id="bars"></canvas>
-                <div
-                  class="flex justify-center mt-4 space-x-3 text-sm text-gray-600 dark:text-gray-400"
-                >
-                  <!-- Chart legend -->
-                  <div class="flex items-center">
-                    <span
-                      class="inline-block w-3 h-3 mr-1 bg-teal-500 rounded-full"
-                    ></span>
-                    <span>Shoes</span>
-                  </div>
-                  <div class="flex items-center">
-                    <span
-                      class="inline-block w-3 h-3 mr-1 bg-purple-600 rounded-full"
-                    ></span>
-                    <span>Bags</span>
-                  </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div
+                        class="bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                                5 Siswa Teratas Hadir
+                            </h3>
+                            <button title="Opsi"
+                                class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <ul class="space-y-4">
+                            <li class="flex items-center space-x-3">
+                                <img class="h-10 w-10 rounded-full object-cover flex-shrink-0 ring-1 ring-gray-200 dark:ring-gray-600"
+                                    src="https://placehold.co/100x100/7C3AED/FFFFFF?text=AF" alt="Ahmad Fauzi" />
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        Ahmad Fauzi
+                                    </p>
+                                    <div class="progress-bar mt-1">
+                                        <div class="progress-fill" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-semibold text-green-600 dark:text-green-400">100%</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <img class="h-10 w-10 rounded-full object-cover flex-shrink-0 ring-1 ring-gray-200 dark:ring-gray-600"
+                                    src="https://placehold.co/100x100/EC4899/FFFFFF?text=SN" alt="Siti Nurhaliza" />
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        Siti Nurhaliza
+                                    </p>
+                                    <div class="progress-bar mt-1">
+                                        <div class="progress-fill" style="width: 98%"></div>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-semibold text-green-600 dark:text-green-400">98%</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <img class="h-10 w-10 rounded-full object-cover flex-shrink-0 ring-1 ring-gray-200 dark:ring-gray-600"
+                                    src="https://placehold.co/100x100/F87171/FFFFFF?text=DL" alt="Dewi Lestari" />
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        Dewi Lestari
+                                    </p>
+                                    <div class="progress-bar mt-1">
+                                        <div class="progress-fill" style="width: 97%"></div>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-semibold text-green-600 dark:text-green-400">97%</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <img class="h-10 w-10 rounded-full object-cover flex-shrink-0 ring-1 ring-gray-200 dark:ring-gray-600"
+                                    src="https://placehold.co/100x100/3B82F6/FFFFFF?text=RP" alt="Rizky Pratama" />
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        Rizky Pratama
+                                    </p>
+                                    <div class="progress-bar mt-1">
+                                        <div class="progress-fill" style="width: 97%"></div>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-semibold text-green-600 dark:text-green-400">97%</span>
+                            </li>
+                            <li class="flex items-center space-x-3">
+                                <img class="h-10 w-10 rounded-full object-cover flex-shrink-0 ring-1 ring-gray-200 dark:ring-gray-600"
+                                    src="https://placehold.co/100x100/FBBF24/000000?text=PA" alt="Putri Ayu" />
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        Putri Ayu
+                                    </p>
+                                    <div class="progress-bar mt-1">
+                                        <div class="progress-fill" style="width: 96%"></div>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-semibold text-green-600 dark:text-green-400">96%</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div
+                        class="lg:col-span-2 bg-white dark:bg-gray-800 p-5 sm:p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-200">
+                                Absensi Mingguan
+                            </h3>
+                            <button title="Opsi"
+                                class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                        <div class="h-80 relative">
+                            <canvas id="weeklyAbsentChart"></canvas>
+                        </div>
+                    </div>
                 </div>
-              </div>
             </div>
-          </div>
+
+            <footer
+                class="p-4 text-center text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700 mt-8">
+                &copy; <span id="current-year"></span> Penabur Presensi. Hak Cipta
+                Dilindungi.
+            </footer>
         </main>
-      </div>
+
+        <nav
+            class="md:hidden fixed bottom-0 inset-x-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg z-20">
+            <div class="flex justify-around items-center h-16 max-w-md mx-auto px-2">
+                <a href="#"
+                    class="bottom-nav-item active flex flex-col items-center justify-center px-2 py-1 rounded-md w-1/4"
+                    aria-current="page">
+                    <i data-lucide="layout-dashboard" class="h-5 w-5 mb-1"></i>
+                    <span class="text-xs font-medium">Dashboard</span>
+                </a>
+                <a href="#"
+                    class="bottom-nav-item flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 px-2 py-1 rounded-md w-1/4">
+                    <i data-lucide="users" class="h-5 w-5 mb-1"></i>
+                    <span class="text-xs font-medium">Pengguna</span>
+                </a>
+                <a href="#"
+                    class="bottom-nav-item flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 px-2 py-1 rounded-md w-1/4">
+                    <i data-lucide="bar-chart-3" class="h-5 w-5 mb-1"></i>
+                    <span class="text-xs font-medium">Laporan</span>
+                </a>
+                <a href="#"
+                    class="bottom-nav-item flex flex-col items-center justify-center text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 px-2 py-1 rounded-md w-1/4">
+                    <i data-lucide="settings" class="h-5 w-5 mb-1"></i>
+                    <span class="text-xs font-medium">Pengaturan</span>
+                </a>
+            </div>
+        </nav>
     </div>
-  </body>
+
+    <script>
+        // --- Variabel Global Chart ---
+        let totalAttendanceChartInstance = null;
+        let genderChartInstance = null;
+        let weeklyAbsentChartInstance = null;
+
+        // --- Fungsi Helper Tema & Chart ---
+        const getCurrentThemeColors = () => {
+            // Periksa tema dari class di <html>, bukan dari localStorage langsung
+            const isDark = document.documentElement.classList.contains("dark");
+            // Warna disesuaikan untuk tema terang/gelap agar kontras
+            return {
+                textColor: isDark ? "#d1d5db" : "#374151", // gray-300 : gray-700
+                gridColor: isDark ?
+                    "rgba(255, 255, 255, 0.1)" :
+                    "rgba(0, 0, 0, 0.05)",
+                tooltipBg: isDark ? "#1f2937" : "#ffffff", // gray-800 : white
+                tooltipText: isDark ? "#f3f4f6" : "#1f2937", // gray-100 : gray-800
+                doughnutBorder: isDark ? "#1f2937" : "#ffffff", // gray-800 : white (batas donat)
+                radarLine: isDark ?
+                    "rgba(167, 139, 250, 0.7)" // purple-400/70
+                    :
+                    "rgba(79, 70, 229, 0.7)", // indigo-600/70
+                radarFill: isDark ?
+                    "rgba(167, 139, 250, 0.2)" // purple-400/20
+                    :
+                    "rgba(79, 70, 229, 0.2)", // indigo-600/20
+                barBg: isDark ? "#818cf8" : "#4f46e5", // indigo-400 : indigo-600
+                // Definisikan warna lain jika perlu
+                colorPrimary: isDark ? "#818cf8" : "#4f46e5", // indigo-400 : indigo-600
+                colorPink: isDark ? "#f472b6" : "#ec4899", // pink-400 : pink-500
+                colorGray: isDark ? "#6b7280" : "#9ca3af", // gray-500 : gray-400
+            };
+        };
+
+        const updateAllChartThemes = () => {
+            const themeColors = getCurrentThemeColors();
+            const updateChart = (chart) => {
+                if (!chart) return;
+
+                // Update warna umum
+                if (chart.options.plugins?.legend?.labels) {
+                    chart.options.plugins.legend.labels.color = themeColors.textColor;
+                }
+                if (chart.options.plugins?.title?.color) {
+                    chart.options.plugins.title.color = themeColors.textColor;
+                }
+                if (chart.options.plugins?.tooltip) {
+                    chart.options.plugins.tooltip.backgroundColor =
+                        themeColors.tooltipBg;
+                    chart.options.plugins.tooltip.titleColor = themeColors.tooltipText;
+                    chart.options.plugins.tooltip.bodyColor = themeColors.tooltipText;
+                }
+
+                // Update skala (sumbu)
+                if (chart.options.scales) {
+                    Object.values(chart.options.scales).forEach((axis) => {
+                        if (axis.ticks) {
+                            axis.ticks.color = themeColors.textColor;
+                        }
+                        if (axis.grid) {
+                            axis.grid.color = themeColors.gridColor;
+                            axis.grid.borderColor = themeColors.gridColor;
+                        }
+                        if (axis.angleLines) {
+                            axis.angleLines.color = themeColors.gridColor;
+                        } // Untuk Radar
+                        if (axis.pointLabels) {
+                            axis.pointLabels.color = themeColors.textColor;
+                        } // Untuk Radar
+                    });
+                }
+
+                // Update warna spesifik per tipe chart
+                if (chart.config.type === "doughnut") {
+                    chart.config.data.datasets.forEach((dataset) => {
+                        dataset.borderColor = themeColors.doughnutBorder;
+                        // Update warna background jika perlu (misalnya, jika warna dari themeColors)
+                        dataset.backgroundColor = [
+                            themeColors.colorPrimary,
+                            themeColors.colorPink,
+                            themeColors.colorGray,
+                        ];
+                    });
+                }
+                if (chart.config.type === "radar") {
+                    chart.config.data.datasets.forEach((dataset) => {
+                        dataset.borderColor = themeColors.radarLine;
+                        dataset.backgroundColor = themeColors.radarFill;
+                        dataset.pointBackgroundColor = themeColors.radarLine;
+                        dataset.pointBorderColor = themeColors
+                        .doughnutBorder; // Use doughnut border for contrast
+                        dataset.pointHoverBackgroundColor = themeColors.doughnutBorder;
+                        dataset.pointHoverBorderColor = themeColors.radarLine;
+                    });
+                }
+                if (chart.config.type === "bar") {
+                    chart.config.data.datasets.forEach((dataset) => {
+                        dataset.backgroundColor = themeColors.barBg;
+                    });
+                }
+
+                chart.update("none"); // Update tanpa animasi
+            };
+            updateChart(totalAttendanceChartInstance);
+            updateChart(genderChartInstance);
+            updateChart(weeklyAbsentChartInstance);
+        };
+
+        // --- Inisialisasi Saat DOM Siap ---
+        document.addEventListener("DOMContentLoaded", () => {
+            // --- Ganti Ikon dengan Lucide ---
+            if (typeof lucide !== "undefined") {
+                lucide.createIcons();
+            }
+
+            // --- Referensi Elemen ---
+            const currentYearSpan = document.getElementById("current-year");
+            const bottomNavItems = document.querySelectorAll(".bottom-nav-item");
+            const topNavItems = document.querySelectorAll(".top-nav-item");
+
+            // --- Footer Year ---
+            if (currentYearSpan) {
+                currentYearSpan.textContent = new Date().getFullYear();
+            }
+
+            // --- Status Aktif Navigasi (Sederhana) ---
+            // Fungsi untuk menangani klik navigasi (DRY)
+            const handleNavClick = (items, activeClasses, inactiveClasses) => {
+                items.forEach((item) => {
+                    item.addEventListener("click", (e) => {
+                        // Hapus 'active' dari semua
+                        items.forEach((el) => {
+                            el.classList.remove(...activeClasses);
+                            el.classList.add(...
+                            inactiveClasses); // Tambahkan kembali class non-aktif jika ada
+                            el.removeAttribute("aria-current");
+                        });
+                        // Tambahkan 'active' ke yang diklik
+                        item.classList.add(...activeClasses);
+                        item.classList.remove(...inactiveClasses); // Hapus class non-aktif
+                        item.setAttribute("aria-current", "page");
+                    });
+                });
+            };
+
+            // Terapkan untuk Top Nav
+            handleNavClick(
+                topNavItems,
+                [
+                    "active",
+                    "bg-indigo-50",
+                    "dark:bg-indigo-800",
+                    "text-indigo-600",
+                    "dark:text-indigo-200",
+                    "font-semibold",
+                ],
+                ["text-gray-500", "dark:text-gray-300"] // Kelas non-aktif dasar
+            );
+
+            // Terapkan untuk Bottom Nav
+            handleNavClick(
+                bottomNavItems,
+                ["active", "text-indigo-600", "dark:text-indigo-400"],
+                ["text-gray-500", "dark:text-gray-400"] // Kelas non-aktif dasar
+            );
+
+            // --- Inisialisasi Chart.js ---
+            const initCharts = () => {
+                const themeColors = getCurrentThemeColors(); // Dapatkan warna tema saat ini
+
+                // Hancurkan chart lama jika ada sebelum membuat yang baru
+                if (totalAttendanceChartInstance)
+                    totalAttendanceChartInstance.destroy();
+                if (genderChartInstance) genderChartInstance.destroy();
+                if (weeklyAbsentChartInstance) weeklyAbsentChartInstance.destroy();
+
+                // 1. Total Attendance Report (Bar Chart)
+                const totalAttendanceCtx = document
+                    .getElementById("totalAttendanceChart")
+                    ?.getContext("2d");
+                if (totalAttendanceCtx) {
+                    totalAttendanceChartInstance = new Chart(totalAttendanceCtx, {
+                        type: "bar",
+                        data: {
+                            labels: [
+                                "Jan",
+                                "Feb",
+                                "Mar",
+                                "Apr",
+                                "Mei",
+                                "Jun",
+                                "Jul",
+                                "Agu",
+                                "Sep",
+                                "Okt",
+                                "Nov",
+                                "Des",
+                            ],
+                            datasets: [{
+                                label: "Total Kehadiran",
+                                data: [
+                                    570, 630, 400, 500, 450, 600, 700, 650, 580, 620, 680,
+                                    710,
+                                ],
+                                backgroundColor: themeColors.barBg, // Warna dari tema
+                                borderRadius: 4,
+                                barPercentage: 0.6,
+                                categoryPercentage: 0.7,
+                            }, ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    grid: {
+                                        color: themeColors.gridColor,
+                                        borderColor: themeColors.gridColor,
+                                    },
+                                    ticks: {
+                                        color: themeColors.textColor
+                                    },
+                                },
+                                x: {
+                                    grid: {
+                                        display: false
+                                    },
+                                    ticks: {
+                                        color: themeColors.textColor
+                                    },
+                                },
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    backgroundColor: themeColors.tooltipBg,
+                                    titleColor: themeColors.tooltipText,
+                                    bodyColor: themeColors.tooltipText,
+                                    padding: 10,
+                                    boxPadding: 4,
+                                    cornerRadius: 4,
+                                },
+                            },
+                        },
+                    });
+                }
+
+                // 2. Students by Gender (Doughnut Chart)
+                const genderCtx = document
+                    .getElementById("genderChart")
+                    ?.getContext("2d");
+                if (genderCtx) {
+                    genderChartInstance = new Chart(genderCtx, {
+                        type: "doughnut",
+                        data: {
+                            labels: ["Laki-laki", "Perempuan", "Lainnya"],
+                            datasets: [{
+                                label: "Gender Siswa",
+                                data: [410, 150, 10], // Data dari gambar
+                                backgroundColor: [
+                                    themeColors.colorPrimary,
+                                    themeColors.colorPink,
+                                    themeColors.colorGray,
+                                ],
+                                borderColor: themeColors.doughnutBorder,
+                                borderWidth: 3,
+                                hoverOffset: 8,
+                            }, ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: "70%", // Buat lubang lebih besar
+                            plugins: {
+                                legend: {
+                                    position: "bottom",
+                                    labels: {
+                                        color: themeColors.textColor,
+                                        boxWidth: 12,
+                                        padding: 15,
+                                    },
+                                },
+                                tooltip: {
+                                    backgroundColor: themeColors.tooltipBg,
+                                    titleColor: themeColors.tooltipText,
+                                    bodyColor: themeColors.tooltipText,
+                                    padding: 10,
+                                    boxPadding: 4,
+                                    cornerRadius: 4,
+                                },
+                            },
+                        },
+                    });
+                }
+
+                // 3. Weekly Absent (Radar Chart)
+                const weeklyAbsentCtx = document
+                    .getElementById("weeklyAbsentChart")
+                    ?.getContext("2d");
+                if (weeklyAbsentCtx) {
+                    weeklyAbsentChartInstance = new Chart(weeklyAbsentCtx, {
+                        type: "radar",
+                        data: {
+                            labels: ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"],
+                            datasets: [{
+                                label: "Jumlah Absen",
+                                data: [15, 10, 20, 12, 18, 5, 8],
+                                borderColor: themeColors.radarLine,
+                                backgroundColor: themeColors.radarFill,
+                                pointBackgroundColor: themeColors.radarLine,
+                                pointBorderColor: themeColors.doughnutBorder,
+                                pointHoverBackgroundColor: themeColors.doughnutBorder,
+                                pointHoverBorderColor: themeColors.radarLine,
+                                borderWidth: 1.5,
+                                pointRadius: 3,
+                                pointHoverRadius: 5,
+                            }, ],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                r: {
+                                    angleLines: {
+                                        color: themeColors.gridColor
+                                    },
+                                    grid: {
+                                        color: themeColors.gridColor
+                                    },
+                                    pointLabels: {
+                                        color: themeColors.textColor,
+                                        font: {
+                                            size: 11
+                                        },
+                                    },
+                                    ticks: {
+                                        display: false
+                                    }, // Sembunyikan angka pada sumbu r
+                                    suggestedMin: 0,
+                                },
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                tooltip: {
+                                    backgroundColor: themeColors.tooltipBg,
+                                    titleColor: themeColors.tooltipText,
+                                    bodyColor: themeColors.tooltipText,
+                                    padding: 10,
+                                    boxPadding: 4,
+                                    cornerRadius: 4,
+                                },
+                            },
+                        },
+                    });
+                }
+            }; // End initCharts
+
+            initCharts(); // Panggil inisialisasi chart awal
+            // Tidak perlu memanggil updateAllChartThemes di sini karena sudah dihandle oleh AlpineJS init()
+
+            // Tambahkan listener untuk resize atau perubahan orientasi jika perlu
+            // window.addEventListener('resize', () => {
+            //     // Mungkin perlu re-init atau update chart jika ukuran berubah drastis
+            // });
+        }); // End DOMContentLoaded
+    </script>
+</body>
+
 </html>

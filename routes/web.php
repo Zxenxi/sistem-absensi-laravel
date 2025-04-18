@@ -98,9 +98,9 @@ Route::middleware(['auth'])->group(function () {
 
 // routing view view
 
-// Route::get('/charts',function(){
-// return view('dashboard.charts');
-// })->name('charts');
+Route::get('/charts',function(){
+return view('dashboard.charts');
+})->name('charts');
 // Route::get('/buttons',function(){
 // return view('dashboard.buttons');
 // })->name('buttons');
